@@ -4,7 +4,7 @@
 MOBILE := mobile
 
 .DEFAULT_GOAL := help
-.PHONY: help install start tunnel android lint typecheck doctor check clean
+.PHONY: help install start usb tunnel android lint typecheck doctor check clean
 
 help: ## List available targets
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*## "}; {printf "  \033[36m%-10s\033[0m %s\n", $$1, $$2}'
@@ -15,6 +15,10 @@ install: ## Install mobile dependencies
 	cd $(MOBILE) && npm install
 
 start: ## Start the dev server; scan the QR code with Expo Go
+	cd $(MOBILE) && npm start
+
+usb: ## Start over USB; open Expo Go and enter exp://localhost:8081 manually (phone plugged in, USB debugging on)
+	adb reverse tcp:8081 tcp:8081
 	cd $(MOBILE) && npm start
 
 tunnel: ## Start the dev server over an internet tunnel; use when the phone can't reach this PC on Wi-Fi

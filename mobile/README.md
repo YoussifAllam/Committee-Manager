@@ -20,6 +20,21 @@ If it's working, `http://<computer-ip>:8081/status` opens in the phone's browser
 ngrok account, which is sometimes throttled and fails with `failed to start tunnel: remote gone away`. When that
 happens, retry later or use Wi-Fi.
 
+### Run over USB instead of Wi-Fi
+
+If the phone can't reach the computer on Wi-Fi (different network, VPN, isolated router), connect it by USB cable
+instead:
+
+1. One-time device setup: **Settings → About phone**, tap **Build number** 7 times to unlock Developer options,
+   then **Settings → Developer options** → turn on **USB debugging**.
+2. Plug in the phone. On the notification about the USB connection mode, choose **File Transfer (MTP)** —
+   "Charging only" won't work. Tap **Allow** on the "Allow USB debugging?" popup.
+3. Run `make usb` (or `adb reverse tcp:8081 tcp:8081 && npm start`).
+4. In Expo Go, choose **Enter URL manually** and type `exp://localhost:8081`.
+
+This needs `adb` installed (`sudo dnf install android-tools` on Fedora) and, on Linux, a udev rule so `adb` can
+access the device without root — see `/etc/udev/rules.d/51-android.rules`.
+
 To build an installable APK, use EAS (`npx eas-cli@latest build -p android`). Once you add native modules
 that Expo Go doesn't bundle, you'll also need a development build (see [AGENTS.md](AGENTS.md)).
 
