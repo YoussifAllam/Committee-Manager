@@ -1,5 +1,6 @@
 // Placeholder data until the Django API exists. Dates are relative to today so countdowns stay realistic.
 import type { Assignment, AssignmentStats } from '@/features/assignments/types';
+import type { Committee } from '@/features/committees/types';
 import type { Meeting } from '@/features/meetings/types';
 
 function daysFromNow(days: number, hours = 9, minutes = 0) {
@@ -9,9 +10,16 @@ function daysFromNow(days: number, hours = 9, minutes = 0) {
   return date;
 }
 
-export const currentUser = { name: 'يوسف علام', role: 'عضو' };
+export const currentUser = { name: 'يوسف علام' };
 
-export const committee = { name: 'اللجنة الإدارية', unreadNotifications: 2 };
+// A member can belong to more than one committee, with a different role in each.
+export const committees: Committee[] = [
+  { id: '1', name: 'اللجنة الإدارية', role: 'عضو' },
+  { id: '2', name: 'لجنة الأنشطة', role: 'منسق' },
+  { id: '3', name: 'لجنة المسجد', role: 'عضو' },
+];
+
+export const unreadNotifications = 2;
 
 export const nextMeeting: Meeting = {
   id: '1',

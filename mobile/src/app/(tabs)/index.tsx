@@ -1,4 +1,5 @@
 import { Link } from 'expo-router';
+import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { Icon } from '@/components/icon';
@@ -9,18 +10,20 @@ import { AssignmentsSummary } from '@/features/assignments/assignments-summary';
 import { HomeHeader } from '@/features/home/home-header';
 import { NextMeetingCard } from '@/features/meetings/next-meeting-card';
 import { useTheme } from '@/hooks/use-theme';
-import { assignmentStats, committee, currentUser, nextMeeting, urgentAssignments } from '@/mocks/home';
+import { assignmentStats, committees, currentUser, nextMeeting, unreadNotifications, urgentAssignments } from '@/mocks/home';
 
 export default function HomeScreen() {
   const theme = useTheme();
+  const [selectedCommittee, setSelectedCommittee] = useState(committees[0]);
 
   return (
     <ScrollView style={{ backgroundColor: theme.background }} contentContainerStyle={styles.content}>
       <HomeHeader
         userName={currentUser.name}
-        role={currentUser.role}
-        committeeName={committee.name}
-        unreadNotifications={committee.unreadNotifications}
+        committees={committees}
+        selectedCommittee={selectedCommittee}
+        onSelectCommittee={setSelectedCommittee}
+        unreadNotifications={unreadNotifications}
       />
 
       <View style={styles.body}>

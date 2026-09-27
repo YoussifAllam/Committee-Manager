@@ -6,17 +6,26 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon } from '@/components/icon';
 import { ThemedText } from '@/components/themed-text';
 import { Fonts, Radius, Spacing } from '@/constants/theme';
+import { CommitteePicker } from '@/features/committees/committee-picker';
+import type { Committee } from '@/features/committees/types';
 import { useTheme } from '@/hooks/use-theme';
 import { greeting } from '@/utils/date';
 
 type HomeHeaderProps = {
   userName: string;
-  role: string;
-  committeeName: string;
+  committees: Committee[];
+  selectedCommittee: Committee;
+  onSelectCommittee: (committee: Committee) => void;
   unreadNotifications: number;
 };
 
-export function HomeHeader({ userName, role, committeeName, unreadNotifications }: HomeHeaderProps) {
+export function HomeHeader({
+  userName,
+  committees,
+  selectedCommittee,
+  onSelectCommittee,
+  unreadNotifications,
+}: HomeHeaderProps) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const outlined = { backgroundColor: theme.surface, borderColor: theme.border };
@@ -26,14 +35,7 @@ export function HomeHeader({ userName, role, committeeName, unreadNotifications 
       colors={theme.headerGradient}
       style={[styles.header, { paddingTop: insets.top + Spacing.two }]}>
       <View style={styles.topBar}>
-        <View style={styles.brand}>
-          <View style={[styles.logo, outlined]}>
-            <Icon name="groups" color={theme.primary} />
-          </View>
-          <ThemedText type="label" numberOfLines={1}>
-            {committeeName}
-          </ThemedText>
-        </View>
+        <CommitteePicker committees={committees} selected={selectedCommittee} onSelect={onSelectCommittee} />
 
         <Pressable
           accessibilityRole="button"
@@ -65,14 +67,10 @@ export function HomeHeader({ userName, role, committeeName, unreadNotifications 
         <ThemedText type="display">{userName}</ThemedText>
       </View>
 
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={`صفة العضوية: ${role}. تغيير الصفة`}
-        style={[styles.roleChip, outlined]}>
+      <View style={[styles.roleBadge, outlined]}>
         <Icon name="shield_person" size={16} color={theme.primary} />
-        <ThemedText type="small">{role}</ThemedText>
-        <Icon name="expand_more" size={18} />
-      </Pressable>
+        <ThemedText type="small">{selectedCommittee.role}</ThemedText>
+      </View>
     </LinearGradient>
   );
 }
@@ -86,20 +84,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.two,
-  },
-  brand: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.two,
-  },
-  logo: {
-    width: 40,
-    height: 40,
-    borderRadius: Radius.md,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   iconButton: {
     width: 44,
@@ -141,7 +125,7 @@ const styles = StyleSheet.create({
   greeting: {
     marginTop: Spacing.four,
   },
-  roleChip: {
+  roleBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'flex-start',
