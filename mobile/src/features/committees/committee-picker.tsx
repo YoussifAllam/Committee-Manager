@@ -1,22 +1,17 @@
 import { useState } from 'react';
-import { FlatList, Modal, Pressable, StyleSheet, View } from 'react-native';
+import { FlatList, Modal, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon } from '@/components/icon';
 import { ThemedText } from '@/components/themed-text';
 import { Radius, Spacing } from '@/constants/theme';
-import type { Committee } from '@/features/committees/types';
+import { useSelectedCommittee } from '@/features/committees/selected-committee';
 import { useTheme } from '@/hooks/use-theme';
 
-type CommitteePickerProps = {
-  committees: Committee[];
-  selected: Committee;
-  onSelect: (committee: Committee) => void;
-};
-
-/** Header trigger that opens a bottom sheet to switch between the committees the member belongs to. */
-export function CommitteePicker({ committees, selected, onSelect }: CommitteePickerProps) {
+/** Trigger that opens a bottom sheet to switch the app-wide selected committee. */
+export function CommitteePicker({ style }: { style?: StyleProp<ViewStyle> }) {
   const theme = useTheme();
+  const { committees, committee: selected, select: onSelect } = useSelectedCommittee();
   const insets = useSafeAreaInsets();
   const [open, setOpen] = useState(false);
   const outlined = { backgroundColor: theme.surface, borderColor: theme.border };
@@ -27,7 +22,7 @@ export function CommitteePicker({ committees, selected, onSelect }: CommitteePic
         accessibilityRole="button"
         accessibilityLabel={`اللجنة الحالية: ${selected.name}. اضغط للتبديل بين لجانك`}
         onPress={() => setOpen(true)}
-        style={[styles.trigger, outlined]}>
+        style={[styles.trigger, outlined, style]}>
         <Icon name="groups" size={18} color={theme.primary} />
         <ThemedText type="label" numberOfLines={1} style={styles.grow}>
           {selected.name}
@@ -89,7 +84,6 @@ const styles = StyleSheet.create({
   trigger: {
     flexDirection: 'row',
     alignItems: 'center',
-    flex: 1,
     gap: Spacing.two,
     height: 40,
     paddingHorizontal: Spacing.three - Spacing.one,

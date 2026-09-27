@@ -71,6 +71,8 @@ Conventions:
   positions. RTL is forced natively in builds (the `expo-localization` plugin in `app.json`) and by `direction: 'rtl'`
   on the root view, so Expo Go mirrors the layout too.
 - Keep `src/app/` for routes and layouts. Put other code outside it.
+- The committee picked in the committee picker is app-wide (`useSelectedCommittee()` in
+  `src/features/committees/selected-committee.tsx`). Home and Assignments filter by it; Meetings shows every committee.
 - Put the shared HTTP client in `src/api/` once the backend exists, and replace the imports from `src/mocks/`.
 - Icons are [Material Symbols](https://fonts.google.com/icons) names passed to `<Icon name="..." />`.
 - Text always goes through `<ThemedText type="...">` so it gets the Arabic fonts and line heights. On Android

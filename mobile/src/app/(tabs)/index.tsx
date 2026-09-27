@@ -1,5 +1,4 @@
 import { Link, type Href } from 'expo-router';
-import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { Icon } from '@/components/icon';
@@ -7,38 +6,30 @@ import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { AssignmentCard } from '@/features/assignments/assignment-card';
 import { AssignmentsSummary } from '@/features/assignments/assignments-summary';
+import { needingAttention, summarize } from '@/features/assignments/selectors';
+import { useSelectedCommittee } from '@/features/committees/selected-committee';
 import { HomeHeader } from '@/features/home/home-header';
 import { MeetingSummaryCard } from '@/features/meetings/meeting-summary-card';
 import { NextMeetingCard } from '@/features/meetings/next-meeting-card';
 import { upcomingMeetings } from '@/features/meetings/schedule';
 import { useTheme } from '@/hooks/use-theme';
-import {
-  assignmentStats,
-  committees,
-  currentUser,
-  meetings,
-  unreadNotifications,
-  urgentAssignments,
-} from '@/mocks/data';
+import { assignments, currentUser, meetings, unreadNotifications } from '@/mocks/data';
 
 export default function HomeScreen() {
   const theme = useTheme();
-  const [selectedCommittee, setSelectedCommittee] = useState(committees[0]);
+  const { committees, committee: selectedCommittee } = useSelectedCommittee();
   const upcoming = upcomingMeetings(meetings);
   const nextOverall = upcoming[0];
   const nextInSelected = upcoming.find((meeting) => meeting.committee.id === selectedCommittee.id);
+  // Assignments follow the committee picked in the header; meetings above also show the soonest overall.
+  const committeeAssignments = assignments.filter((assignment) => assignment.committee.id === selectedCommittee.id);
+  const attention = needingAttention(committeeAssignments);
   // Skip the second card when the soonest meeting overall already belongs to the selected committee.
   const showSelectedCommittee = nextOverall && nextInSelected?.id !== nextOverall.id;
 
   return (
     <ScrollView style={{ backgroundColor: theme.background }} contentContainerStyle={styles.content}>
-      <HomeHeader
-        userName={currentUser.name}
-        committees={committees}
-        selectedCommittee={selectedCommittee}
-        onSelectCommittee={setSelectedCommittee}
-        unreadNotifications={unreadNotifications}
-      />
+      <HomeHeader userName={currentUser.name} unreadNotifications={unreadNotifications} />
 
       <View style={styles.body}>
         <View style={styles.section}>
@@ -68,15 +59,15 @@ export default function HomeScreen() {
             <ThemedText type="title">ملخص تكليفاتي</ThemedText>
             <SeeAllLink href="/assignments" label="كل التكليفات" />
           </View>
-          <AssignmentsSummary stats={assignmentStats} />
+          <AssignmentsSummary stats={summarize(committeeAssignments)} />
         </View>
 
         <View style={styles.section}>
           <ThemedText type="title">التكليفات الجارية والعاجلة</ThemedText>
-          {urgentAssignments.length === 0 && (
-            <ThemedText themeColor="textSecondary">لا توجد تكليفات جارية أو متأخرة.</ThemedText>
+          {attention.length === 0 && (
+            <ThemedText themeColor="textSecondary">لا توجد تكليفات عاجلة أو متأخرة.</ThemedText>
           )}
-          {urgentAssignments.map((assignment) => (
+          {attention.map((assignment) => (
             <AssignmentCard key={assignment.id} assignment={assignment} />
           ))}
         </View>

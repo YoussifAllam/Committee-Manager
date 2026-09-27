@@ -7,26 +7,13 @@ import { Icon } from '@/components/icon';
 import { ThemedText } from '@/components/themed-text';
 import { Fonts, Radius, Spacing } from '@/constants/theme';
 import { CommitteePicker } from '@/features/committees/committee-picker';
-import type { Committee } from '@/features/committees/types';
+import { useSelectedCommittee } from '@/features/committees/selected-committee';
 import { useTheme } from '@/hooks/use-theme';
 import { greeting } from '@/utils/date';
 
-type HomeHeaderProps = {
-  userName: string;
-  committees: Committee[];
-  selectedCommittee: Committee;
-  onSelectCommittee: (committee: Committee) => void;
-  unreadNotifications: number;
-};
-
-export function HomeHeader({
-  userName,
-  committees,
-  selectedCommittee,
-  onSelectCommittee,
-  unreadNotifications,
-}: HomeHeaderProps) {
+export function HomeHeader({ userName, unreadNotifications }: { userName: string; unreadNotifications: number }) {
   const theme = useTheme();
+  const { committee } = useSelectedCommittee();
   const insets = useSafeAreaInsets();
   const outlined = { backgroundColor: theme.surface, borderColor: theme.border };
 
@@ -35,7 +22,7 @@ export function HomeHeader({
       colors={theme.headerGradient}
       style={[styles.header, { paddingTop: insets.top + Spacing.two }]}>
       <View style={styles.topBar}>
-        <CommitteePicker committees={committees} selected={selectedCommittee} onSelect={onSelectCommittee} />
+        <CommitteePicker style={styles.picker} />
 
         <Pressable
           accessibilityRole="button"
@@ -69,7 +56,7 @@ export function HomeHeader({
 
       <View style={[styles.roleBadge, outlined]}>
         <Icon name="shield_person" size={16} color={theme.primary} />
-        <ThemedText type="small">{selectedCommittee.role}</ThemedText>
+        <ThemedText type="small">{committee.role}</ThemedText>
       </View>
     </LinearGradient>
   );
@@ -84,6 +71,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.two,
+  },
+  picker: {
+    flex: 1,
   },
   iconButton: {
     width: 44,

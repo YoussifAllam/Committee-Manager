@@ -1,5 +1,5 @@
 // Placeholder data until the Django API exists. Dates are relative to today so countdowns stay realistic.
-import type { Assignment, AssignmentStats } from '@/features/assignments/types';
+import type { Assignment } from '@/features/assignments/types';
 import type { Committee } from '@/features/committees/types';
 import type { Meeting } from '@/features/meetings/types';
 
@@ -107,23 +107,96 @@ export const meetings: Meeting[] = [
   },
 ];
 
-export const assignmentStats: AssignmentStats = { pending: 2, overdue: 2, completed: 1 };
+const hoursAgo = (hours: number) => new Date(Date.now() - hours * 3_600_000);
 
-export const urgentAssignments: Assignment[] = [
+// Assignments across all of the member's committees; screens filter by the selected committee.
+export const assignments: Assignment[] = [
   {
     id: '1',
+    committee: adminCommittee,
     title: 'التواصل مع إدارة المسجد',
+    description: 'التنسيق مع إدارة المسجد لحجز القاعة الرئيسية للفعالية، وتأكيد توفير أجهزة الصوت والتكييف.',
     status: 'in_progress',
     priority: 'urgent',
     dueDate: daysFromNow(-14),
+    updatedAt: hoursAgo(2),
     meetingTitle: 'الاجتماع الإداري الأسبوعي',
   },
   {
     id: '2',
+    committee: adminCommittee,
     title: 'إعداد تقرير الأنشطة الشهرية',
+    description: 'جمع مخرجات أنشطة شهر أغسطس من اللجان، وصياغة التقرير النهائي لعرضه في الاجتماع القادم.',
     status: 'awaiting_review',
     priority: 'important',
     dueDate: daysFromNow(-12),
+    updatedAt: hoursAgo(26),
     meetingTitle: 'الاجتماع الإداري الأسبوعي',
+  },
+  {
+    id: '3',
+    committee: adminCommittee,
+    title: 'تحديث سجل العضوية',
+    description: 'مراجعة بيانات الأعضاء الجدد وإضافتها إلى سجل العضوية.',
+    status: 'not_started',
+    priority: 'normal',
+    dueDate: daysFromNow(5),
+    updatedAt: hoursAgo(72),
+    meetingTitle: 'الاجتماع الإداري الأسبوعي',
+  },
+  {
+    id: '4',
+    committee: adminCommittee,
+    title: 'إرسال محضر الاجتماع السابق',
+    description: 'صياغة محضر الاجتماع الإداري وإرساله لجميع الأعضاء لاعتماده.',
+    status: 'done',
+    priority: 'normal',
+    dueDate: daysFromNow(-3),
+    updatedAt: hoursAgo(50),
+    meetingTitle: 'الاجتماع الإداري الأسبوعي',
+  },
+  {
+    id: '5',
+    committee: activitiesCommittee,
+    title: 'حجز الحافلات لرحلة الشباب',
+    description: 'التواصل مع شركة النقل وحجز حافلتين لرحلة نهاية الشهر، وتأكيد مواعيد الانطلاق.',
+    status: 'in_progress',
+    priority: 'urgent',
+    dueDate: daysFromNow(2),
+    updatedAt: hoursAgo(5),
+    meetingTitle: 'تقييم أنشطة الصيف',
+  },
+  {
+    id: '6',
+    committee: activitiesCommittee,
+    title: 'تصميم إعلان المسابقة الثقافية',
+    description: 'تصميم إعلان المسابقة ونشره على مجموعات الأعضاء.',
+    status: 'done',
+    priority: 'important',
+    dueDate: daysFromNow(-6),
+    updatedAt: hoursAgo(150),
+    meetingTitle: 'تقييم أنشطة الصيف',
+  },
+  {
+    id: '7',
+    committee: mosqueCommittee,
+    title: 'متابعة عقد صيانة التكييف',
+    description: 'مراجعة عرض شركة الصيانة، والتأكد من جدول الزيارات الدورية قبل توقيع العقد.',
+    status: 'in_progress',
+    priority: 'important',
+    dueDate: daysFromNow(-1),
+    updatedAt: hoursAgo(20),
+    meetingTitle: 'خطة صيانة المسجد',
+  },
+  {
+    id: '8',
+    committee: mosqueCommittee,
+    title: 'حصر احتياجات المصلى النسائي',
+    description: 'زيارة المصلى وحصر الاحتياجات من فرش وإضاءة وتجهيزات.',
+    status: 'not_started',
+    priority: 'normal',
+    dueDate: daysFromNow(8),
+    updatedAt: hoursAgo(96),
+    meetingTitle: 'خطة صيانة المسجد',
   },
 ];

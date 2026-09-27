@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { Fonts } from '@/constants/theme';
+import { SelectedCommitteeProvider } from '@/features/committees/selected-committee';
 import { useTheme } from '@/hooks/use-theme';
 
 SplashScreen.preventAutoHideAsync();
@@ -49,13 +50,16 @@ export default function RootLayout() {
       <StatusBar style="dark" />
       {/* The app is Arabic-only. Builds force RTL natively (expo-localization plugin in app.json);
           this also mirrors layout in Expo Go, which ignores that plugin. */}
-      <View style={styles.rtl}>
-        <Stack screenOptions={{ headerShadowVisible: false }}>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="meetings/[id]" options={{ title: 'الاجتماع' }} />
-          <Stack.Screen name="meetings/new" options={{ title: 'اجتماع جديد', presentation: 'modal' }} />
-        </Stack>
-      </View>
+      <SelectedCommitteeProvider>
+        <View style={styles.rtl}>
+          <Stack screenOptions={{ headerShadowVisible: false }}>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="meetings/[id]" options={{ title: 'الاجتماع' }} />
+            <Stack.Screen name="meetings/new" options={{ title: 'اجتماع جديد', presentation: 'modal' }} />
+            <Stack.Screen name="assignments/[id]" options={{ title: 'التكليف' }} />
+          </Stack>
+        </View>
+      </SelectedCommitteeProvider>
     </ThemeProvider>
   );
 }

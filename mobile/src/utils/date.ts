@@ -41,6 +41,16 @@ export function formatCountdown(date: Date) {
   return days > 0 ? `بعد ${formatDays(days)}` : `منذ ${formatDays(-days)}`;
 }
 
+/** "منذ 5 دقائق"، "منذ ساعتين"، then whole days: "أمس"، "منذ 3 أيام". */
+export function formatTimeAgo(date: Date, now = new Date()) {
+  const minutes = Math.floor((now.getTime() - date.getTime()) / 60_000);
+  if (minutes < 1) return 'الآن';
+  if (minutes < 60) return `منذ ${pluralize(minutes, { one: 'دقيقة', two: 'دقيقتين', few: 'دقائق', many: 'دقيقة' })}`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `منذ ${pluralize(hours, { one: 'ساعة', two: 'ساعتين', few: 'ساعات', many: 'ساعة' })}`;
+  return formatCountdown(date);
+}
+
 export function greeting(now = new Date()) {
   return now.getHours() < 12 ? 'صباح الخير' : 'مساء الخير';
 }
