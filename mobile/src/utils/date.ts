@@ -1,3 +1,5 @@
+import { pluralize } from '@/utils/plural';
+
 // Hand-rolled instead of Intl so digits stay Latin (15, not ١٥) on every Android/Hermes version.
 const MONTHS = [
   'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
@@ -8,6 +10,12 @@ const WEEKDAYS = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأر�
 export const monthName = (date: Date) => MONTHS[date.getMonth()];
 export const weekdayName = (date: Date) => WEEKDAYS[date.getDay()];
 export const formatShortDate = (date: Date) => `${date.getDate()} ${monthName(date)}`;
+
+/** "الثلاثاء، 30 سبتمبر", with the year only when it isn't the current one. */
+export function formatLongDate(date: Date) {
+  const year = date.getFullYear() === new Date().getFullYear() ? '' : ` ${date.getFullYear()}`;
+  return `${weekdayName(date)}، ${formatShortDate(date)}${year}`;
+}
 
 export function formatTime(date: Date) {
   const hours = date.getHours();
@@ -21,18 +29,16 @@ export function daysFromToday(date: Date) {
   return Math.round((startOfDay(date) - startOfDay(new Date())) / 86_400_000);
 }
 
-/** Arabic count of days: يوم واحد، يومين، 3–10 أيام، 11+ يومًا. */
-export function formatDays(count: number) {
-  if (count === 1) return 'يوم واحد';
-  if (count === 2) return 'يومين';
-  return count <= 10 ? `${count} أيام` : `${count} يومًا`;
-}
+export const formatDays = (count: number) =>
+  pluralize(count, { one: 'يوم واحد', two: 'يومين', few: 'أيام', many: 'يومًا' });
 
+/** Relative day: اليوم، غدًا، أمس، بعد 3 أيام، منذ 5 أيام. */
 export function formatCountdown(date: Date) {
   const days = daysFromToday(date);
   if (days === 0) return 'اليوم';
   if (days === 1) return 'غدًا';
-  return `بعد ${formatDays(days)}`;
+  if (days === -1) return 'أمس';
+  return days > 0 ? `بعد ${formatDays(days)}` : `منذ ${formatDays(-days)}`;
 }
 
 export function greeting(now = new Date()) {

@@ -21,39 +21,89 @@ export const committees: Committee[] = [
 
 export const unreadNotifications = 2;
 
-// Upcoming meetings across all of the member's committees.
+const [adminCommittee, activitiesCommittee, mosqueCommittee] = committees;
+
+// Meetings across all of the member's committees, past and upcoming.
 export const meetings: Meeting[] = [
   {
     id: '1',
-    committeeId: '1',
+    committee: adminCommittee,
     title: 'الاجتماع الإداري الأسبوعي',
     startsAt: daysFromNow(3, 21, 30),
     location: 'قاعة الاجتماعات الرئيسية',
     agendaCount: 4,
+    decisionCount: 0,
+    assignmentCount: 0,
   },
   {
     id: '2',
-    committeeId: '2',
+    committee: activitiesCommittee,
     title: 'اجتماع تخطيط أنشطة الشهر',
     startsAt: daysFromNow(1, 19, 0),
     location: 'قاعة الأنشطة',
     agendaCount: 3,
+    decisionCount: 0,
+    assignmentCount: 0,
   },
   {
     id: '3',
-    committeeId: '3',
+    committee: mosqueCommittee,
     title: 'اجتماع لجنة المسجد الشهري',
     startsAt: daysFromNow(6, 20, 0),
     location: 'مكتب إدارة المسجد',
     agendaCount: 5,
+    decisionCount: 0,
+    assignmentCount: 0,
   },
   {
     id: '4',
-    committeeId: '1',
+    committee: adminCommittee,
     title: 'مراجعة الميزانية الربع سنوية',
     startsAt: daysFromNow(10, 18, 0),
     location: 'قاعة الاجتماعات الرئيسية',
     agendaCount: 2,
+    decisionCount: 0,
+    assignmentCount: 0,
+  },
+  {
+    id: '5',
+    committee: adminCommittee,
+    title: 'الاجتماع الإداري الأسبوعي',
+    startsAt: daysFromNow(-4, 21, 30),
+    location: 'قاعة الاجتماعات الرئيسية',
+    agendaCount: 5,
+    decisionCount: 2,
+    assignmentCount: 3,
+  },
+  {
+    id: '6',
+    committee: activitiesCommittee,
+    title: 'تقييم أنشطة الصيف',
+    startsAt: daysFromNow(-9, 19, 0),
+    location: 'قاعة الأنشطة',
+    agendaCount: 4,
+    decisionCount: 3,
+    assignmentCount: 5,
+  },
+  {
+    id: '7',
+    committee: adminCommittee,
+    title: 'الاجتماع الإداري الأسبوعي',
+    startsAt: daysFromNow(-11, 21, 30),
+    location: 'قاعة الاجتماعات الرئيسية',
+    agendaCount: 4,
+    decisionCount: 1,
+    assignmentCount: 1,
+  },
+  {
+    id: '8',
+    committee: mosqueCommittee,
+    title: 'خطة صيانة المسجد',
+    startsAt: daysFromNow(-20, 20, 0),
+    location: 'مكتب إدارة المسجد',
+    agendaCount: 3,
+    decisionCount: 1,
+    assignmentCount: 2,
   },
 ];
 

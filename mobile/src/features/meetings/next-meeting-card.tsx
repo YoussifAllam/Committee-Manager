@@ -17,11 +17,10 @@ type NextMeetingCardProps = {
   meeting: Meeting;
   /** Says which meetings this one was picked from, e.g. "الأقرب في كل لجانك". */
   label: string;
-  committeeName: string;
 };
 
 /** The next meeting as an invitation ticket: details above the tear line, actions below it. */
-export function NextMeetingCard({ meeting, label, committeeName }: NextMeetingCardProps) {
+export function NextMeetingCard({ meeting, label }: NextMeetingCardProps) {
   const theme = useTheme();
   const { startsAt } = meeting;
   const notchColors = { backgroundColor: theme.background, borderColor: theme.border };
@@ -64,7 +63,7 @@ export function NextMeetingCard({ meeting, label, committeeName }: NextMeetingCa
             <View style={styles.row}>
               <Icon name="groups" size={16} color={theme.primary} />
               <ThemedText type="small" themeColor="primary" style={styles.shrink}>
-                {committeeName}
+                {meeting.committee.name}
               </ThemedText>
             </View>
           </View>
@@ -81,7 +80,7 @@ export function NextMeetingCard({ meeting, label, committeeName }: NextMeetingCa
 
       <View style={styles.actions}>
         <Button
-          label={`جدول الأعمال (${meeting.agendaCount})`}
+          label="جدول الأعمال"
           icon="format_list_numbered"
           onPress={() => router.push(`/meetings/${meeting.id}`)}
           style={styles.grow}

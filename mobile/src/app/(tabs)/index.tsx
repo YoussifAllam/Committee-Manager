@@ -9,8 +9,8 @@ import { AssignmentCard } from '@/features/assignments/assignment-card';
 import { AssignmentsSummary } from '@/features/assignments/assignments-summary';
 import { HomeHeader } from '@/features/home/home-header';
 import { MeetingSummaryCard } from '@/features/meetings/meeting-summary-card';
-import { findNextMeeting } from '@/features/meetings/next-meeting';
 import { NextMeetingCard } from '@/features/meetings/next-meeting-card';
+import { upcomingMeetings } from '@/features/meetings/schedule';
 import { useTheme } from '@/hooks/use-theme';
 import {
   assignmentStats,
@@ -19,13 +19,14 @@ import {
   meetings,
   unreadNotifications,
   urgentAssignments,
-} from '@/mocks/home';
+} from '@/mocks/data';
 
 export default function HomeScreen() {
   const theme = useTheme();
   const [selectedCommittee, setSelectedCommittee] = useState(committees[0]);
-  const nextOverall = findNextMeeting(meetings);
-  const nextInSelected = findNextMeeting(meetings, selectedCommittee.id);
+  const upcoming = upcomingMeetings(meetings);
+  const nextOverall = upcoming[0];
+  const nextInSelected = upcoming.find((meeting) => meeting.committee.id === selectedCommittee.id);
   // Skip the second card when the soonest meeting overall already belongs to the selected committee.
   const showSelectedCommittee = nextOverall && nextInSelected?.id !== nextOverall.id;
 
@@ -49,7 +50,6 @@ export default function HomeScreen() {
             <NextMeetingCard
               meeting={nextOverall}
               label={committees.length > 1 ? 'الأقرب في كل لجانك' : 'الاجتماع القادم'}
-              committeeName={committees.find((c) => c.id === nextOverall.committeeId)?.name ?? ''}
             />
           ) : (
             <ThemedText themeColor="textSecondary">لا توجد اجتماعات قادمة.</ThemedText>
