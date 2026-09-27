@@ -1,6 +1,4 @@
-import { Link, useFocusEffect } from 'expo-router';
-import { setStatusBarStyle } from 'expo-status-bar';
-import { useCallback } from 'react';
+import { Link } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { Icon } from '@/components/icon';
@@ -16,14 +14,6 @@ import { assignmentStats, committee, currentUser, nextMeeting, urgentAssignments
 export default function HomeScreen() {
   const theme = useTheme();
 
-  // The header is dark in both themes, so status bar icons stay light while this tab is focused.
-  useFocusEffect(
-    useCallback(() => {
-      setStatusBarStyle('light');
-      return () => setStatusBarStyle('auto');
-    }, []),
-  );
-
   return (
     <ScrollView style={{ backgroundColor: theme.background }} contentContainerStyle={styles.content}>
       <HomeHeader
@@ -34,7 +24,7 @@ export default function HomeScreen() {
       />
 
       <View style={styles.body}>
-        <NextMeetingCard meeting={nextMeeting} style={styles.overlapHeader} />
+        <NextMeetingCard meeting={nextMeeting} />
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
@@ -72,9 +62,6 @@ const styles = StyleSheet.create({
   body: {
     paddingHorizontal: Spacing.three,
     gap: Spacing.four,
-  },
-  overlapHeader: {
-    marginTop: -(Spacing.five + Spacing.two),
   },
   section: {
     gap: Spacing.three - Spacing.one,

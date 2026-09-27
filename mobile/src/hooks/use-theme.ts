@@ -1,15 +1,6 @@
-/**
- * Learn more about light and dark modes:
- * https://docs.expo.dev/guides/color-schemes/
- */
-
-import { useColorScheme } from 'react-native';
-
 import { Colors } from '@/constants/theme';
 
+/** The app is light-only. Components read colors through this hook so a dark palette can be added in one place. */
 export function useTheme() {
-  const scheme = useColorScheme();
-  const theme = scheme === 'unspecified' ? 'light' : scheme;
-
-  return Colors[theme];
+  return Colors;
 }

@@ -5,11 +5,11 @@ import {
   IBMPlexSansArabic_700Bold,
   useFonts,
 } from '@expo-google-fonts/ibm-plex-sans-arabic';
-import { ReemKufi_700Bold } from '@expo-google-fonts/reem-kufi';
-import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
+import { DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
+import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import { StyleSheet, useColorScheme, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { Fonts } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -17,14 +17,12 @@ import { useTheme } from '@/hooks/use-theme';
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
   const theme = useTheme();
   const [fontsLoaded, fontError] = useFonts({
     IBMPlexSansArabic_400Regular,
     IBMPlexSansArabic_500Medium,
     IBMPlexSansArabic_600SemiBold,
     IBMPlexSansArabic_700Bold,
-    ReemKufi_700Bold,
   });
   const ready = fontsLoaded || fontError;
 
@@ -34,11 +32,10 @@ export default function RootLayout() {
 
   if (!ready) return null;
 
-  const base = colorScheme === 'dark' ? DarkTheme : DefaultTheme;
   const navigationTheme = {
-    ...base,
+    ...DefaultTheme,
     colors: {
-      ...base.colors,
+      ...DefaultTheme.colors,
       primary: theme.primary,
       background: theme.background,
       card: theme.surface,
@@ -56,6 +53,7 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={navigationTheme}>
+      <StatusBar style="dark" />
       {/* The app is Arabic-only. Builds force RTL natively (expo-localization plugin in app.json);
           this also mirrors layout in Expo Go, which ignores that plugin. */}
       <View style={styles.rtl}>

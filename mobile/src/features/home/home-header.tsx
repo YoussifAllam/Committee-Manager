@@ -9,13 +9,6 @@ import { Fonts, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { greeting } from '@/utils/date';
 
-// The header is ink in both themes, so its foreground colors don't change with the theme.
-const ON_INK = '#FFFFFF';
-const ON_INK_MUTED = 'rgba(255, 255, 255, 0.72)';
-const GLASS = 'rgba(255, 255, 255, 0.12)';
-const BRASS = '#D9AE5F';
-const ALERT = '#E5484D';
-
 type HomeHeaderProps = {
   userName: string;
   role: string;
@@ -26,20 +19,18 @@ type HomeHeaderProps = {
 export function HomeHeader({ userName, role, committeeName, unreadNotifications }: HomeHeaderProps) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
-  const [inkLight, inkDeep] = theme.headerGradient;
+  const outlined = { backgroundColor: theme.surface, borderColor: theme.border };
 
   return (
     <LinearGradient
       colors={theme.headerGradient}
-      start={{ x: 1, y: 0 }}
-      end={{ x: 0, y: 1 }}
       style={[styles.header, { paddingTop: insets.top + Spacing.two }]}>
       <View style={styles.topBar}>
         <View style={styles.brand}>
-          <View style={styles.logo}>
-            <Icon name="groups" color={ON_INK} />
+          <View style={[styles.logo, outlined]}>
+            <Icon name="groups" color={theme.primary} />
           </View>
-          <ThemedText type="label" style={styles.onInk} numberOfLines={1}>
+          <ThemedText type="label" numberOfLines={1}>
             {committeeName}
           </ThemedText>
         </View>
@@ -47,40 +38,40 @@ export function HomeHeader({ userName, role, committeeName, unreadNotifications 
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={`الإشعارات، ${unreadNotifications} غير مقروءة`}
-          style={styles.iconButton}>
-          <Icon name="notifications" size={22} color={ON_INK} />
+          style={[styles.iconButton, outlined]}>
+          <Icon name="notifications" size={22} color={theme.text} />
           {unreadNotifications > 0 && (
-            <View style={[styles.badge, { borderColor: inkLight }]}>
-              <ThemedText style={styles.badgeText}>{unreadNotifications}</ThemedText>
+            <View style={[styles.badge, { backgroundColor: theme.danger, borderColor: theme.surface }]}>
+              <ThemedText style={[styles.badgeText, { color: theme.onPrimary }]}>{unreadNotifications}</ThemedText>
             </View>
           )}
         </Pressable>
 
+        {/* One merged style object: on web, `Link asChild` hands the child's style to an <a> tag, which rejects arrays. */}
         <Link href="/more" asChild>
-          <Pressable accessibilityRole="button" accessibilityLabel="حسابي" style={styles.avatar}>
-            <ThemedText style={[styles.avatarText, { color: inkDeep }]}>{userName[0]}</ThemedText>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="حسابي"
+            style={{ ...styles.avatar, backgroundColor: theme.primary }}>
+            <ThemedText style={[styles.avatarText, { color: theme.onPrimary }]}>{userName[0]}</ThemedText>
           </Pressable>
         </Link>
       </View>
 
       <View style={styles.greeting}>
-        <ThemedText type="small" style={{ color: ON_INK_MUTED }}>
+        <ThemedText type="small" themeColor="textSecondary">
           {greeting()}،
         </ThemedText>
-        <ThemedText type="display" style={styles.onInk}>
-          {userName}
-        </ThemedText>
+        <ThemedText type="display">{userName}</ThemedText>
       </View>
 
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={`صفة العضوية: ${role}. تغيير الصفة`}
-        style={styles.roleChip}>
-        <Icon name="shield_person" size={16} color={ON_INK} />
-        <ThemedText type="small" style={styles.onInk}>
-          {role}
-        </ThemedText>
-        <Icon name="expand_more" size={18} color={ON_INK_MUTED} />
+        style={[styles.roleChip, outlined]}>
+        <Icon name="shield_person" size={16} color={theme.primary} />
+        <ThemedText type="small">{role}</ThemedText>
+        <Icon name="expand_more" size={18} />
       </Pressable>
     </LinearGradient>
   );
@@ -89,10 +80,7 @@ export function HomeHeader({ userName, role, committeeName, unreadNotifications 
 const styles = StyleSheet.create({
   header: {
     paddingHorizontal: Spacing.three,
-    paddingBottom: Spacing.six,
-  },
-  onInk: {
-    color: ON_INK,
+    paddingBottom: Spacing.four,
   },
   topBar: {
     flexDirection: 'row',
@@ -106,25 +94,25 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
   },
   logo: {
-    width: 36,
-    height: 36,
+    width: 40,
+    height: 40,
     borderRadius: Radius.md,
+    borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: GLASS,
   },
   iconButton: {
     width: 44,
     height: 44,
     borderRadius: Radius.pill,
+    borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: GLASS,
   },
   badge: {
     position: 'absolute',
-    top: 4,
-    end: 4,
+    top: 2,
+    end: 2,
     minWidth: 20,
     height: 20,
     paddingHorizontal: Spacing.one,
@@ -132,10 +120,8 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: ALERT,
   },
   badgeText: {
-    color: ON_INK,
     fontFamily: Fonts.bold,
     fontSize: 10,
     lineHeight: 14,
@@ -146,7 +132,6 @@ const styles = StyleSheet.create({
     borderRadius: Radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: BRASS,
   },
   avatarText: {
     fontFamily: Fonts.bold,
@@ -161,10 +146,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'flex-start',
     gap: Spacing.one,
-    height: 32,
+    height: 34,
     marginTop: Spacing.two,
     paddingHorizontal: Spacing.three - Spacing.one,
     borderRadius: Radius.pill,
-    backgroundColor: GLASS,
+    borderWidth: 1,
   },
 });

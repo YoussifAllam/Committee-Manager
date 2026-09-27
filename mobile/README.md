@@ -12,6 +12,14 @@ npm start
 Install **Expo Go** on your Android phone and scan the QR code from the terminal. Your phone and computer
 must be on the same network. You don't need the Android SDK or Android Studio for this.
 
+If Expo Go stays on the loading screen, the phone can't reach your computer. Usually it's on mobile data or
+another Wi-Fi, a VPN is on, or the router isolates Wi-Fi clients. Connect the phone to the same Wi-Fi as the computer.
+If it's working, `http://<computer-ip>:8081/status` opens in the phone's browser and shows `packager-status:running`.
+
+`npm run tunnel` (or `make tunnel`) is a fallback that serves the app through a public URL. It uses Expo's shared
+ngrok account, which is sometimes throttled and fails with `failed to start tunnel: remote gone away`. When that
+happens, retry later or use Wi-Fi.
+
 To build an installable APK, use EAS (`npx eas-cli@latest build -p android`). Once you add native modules
 that Expo Go doesn't bundle, you'll also need a development build (see [AGENTS.md](AGENTS.md)).
 
@@ -21,6 +29,9 @@ that Expo Go doesn't bundle, you'll also need a development build (see [AGENTS.m
 npm run typecheck
 npm run lint
 ```
+
+The same tasks are also available from the repo root through `make` (`make start`, `make check`, …). Run `make` to
+list them all.
 
 ## Structure
 

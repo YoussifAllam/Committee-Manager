@@ -55,9 +55,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   value: {
-    fontFamily: Fonts.display,
-    fontSize: 28,
-    lineHeight: 40,
+    fontFamily: Fonts.bold,
+    fontSize: 26,
+    lineHeight: 38,
   },
   divider: {
     width: 1,

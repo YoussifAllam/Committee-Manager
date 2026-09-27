@@ -23,7 +23,7 @@ export function Button({ label, icon, variant = 'primary', compact, onPress, sty
     <Pressable
       accessibilityRole="button"
       onPress={onPress}
-      android_ripple={{ color: isPrimary ? 'rgba(255, 255, 255, 0.2)' : 'rgba(27, 43, 107, 0.12)' }}
+      android_ripple={{ color: isPrimary ? 'rgba(255, 255, 255, 0.2)' : 'rgba(30, 58, 138, 0.12)' }}
       style={[
         styles.button,
         compact && styles.compact,

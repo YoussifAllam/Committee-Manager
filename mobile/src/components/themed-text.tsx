@@ -17,9 +17,9 @@ export function ThemedText({ style, type = 'default', themeColor, ...rest }: The
 // Arabic script needs roughly 1.6× line height so marks above and below letters aren't clipped.
 const styles = StyleSheet.create({
   display: {
-    fontFamily: Fonts.display,
-    fontSize: 28,
-    lineHeight: 42,
+    fontFamily: Fonts.bold,
+    fontSize: 26,
+    lineHeight: 40,
   },
   title: {
     fontFamily: Fonts.bold,

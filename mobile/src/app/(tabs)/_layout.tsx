@@ -10,6 +10,7 @@ export default function TabsLayout() {
     <NativeTabs
       backgroundColor={theme.surface}
       indicatorColor={theme.primarySoft}
+      labelVisibilityMode="labeled"
       iconColor={{ default: theme.textSecondary, selected: theme.primary }}
       labelStyle={{
         default: { fontFamily: Fonts.medium, color: theme.textSecondary },

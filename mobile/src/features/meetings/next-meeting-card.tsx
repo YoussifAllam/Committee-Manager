@@ -30,12 +30,12 @@ export function NextMeetingCard({ meeting, style }: { meeting: Meeting; style?: 
         </View>
 
         <View style={styles.main}>
-          <View style={[styles.dateSeal, { backgroundColor: theme.primary }]}>
-            <ThemedText type="caption" style={[styles.sealMuted, { color: theme.onPrimary }]}>
+          <View style={[styles.dateSeal, { backgroundColor: theme.primarySoft }]}>
+            <ThemedText type="caption" themeColor="textSecondary">
               {weekdayName(startsAt)}
             </ThemedText>
-            <ThemedText style={[styles.sealDay, { color: theme.onPrimary }]}>{startsAt.getDate()}</ThemedText>
-            <ThemedText type="caption" style={{ color: theme.onPrimary }}>
+            <ThemedText style={[styles.sealDay, { color: theme.primary }]}>{startsAt.getDate()}</ThemedText>
+            <ThemedText type="caption" themeColor="primary">
               {monthName(startsAt)}
             </ThemedText>
           </View>
@@ -117,13 +117,10 @@ const styles = StyleSheet.create({
     borderRadius: Radius.md,
     alignItems: 'center',
   },
-  sealMuted: {
-    opacity: 0.8,
-  },
   sealDay: {
-    fontFamily: Fonts.display,
-    fontSize: 30,
-    lineHeight: 40,
+    fontFamily: Fonts.bold,
+    fontSize: 28,
+    lineHeight: 38,
   },
   info: {
     flex: 1,
