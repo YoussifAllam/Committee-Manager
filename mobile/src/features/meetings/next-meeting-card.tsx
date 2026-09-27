@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { Linking, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/button';
 import { Card } from '@/components/card';
@@ -13,18 +13,25 @@ import { formatCountdown, formatTime, monthName, weekdayName } from '@/utils/dat
 
 const NOTCH_SIZE = 22;
 
+type NextMeetingCardProps = {
+  meeting: Meeting;
+  /** Says which meetings this one was picked from, e.g. "الأقرب في كل لجانك". */
+  label: string;
+  committeeName: string;
+};
+
 /** The next meeting as an invitation ticket: details above the tear line, actions below it. */
-export function NextMeetingCard({ meeting, style }: { meeting: Meeting; style?: StyleProp<ViewStyle> }) {
+export function NextMeetingCard({ meeting, label, committeeName }: NextMeetingCardProps) {
   const theme = useTheme();
-  const { startsAt, videoLink } = meeting;
+  const { startsAt } = meeting;
   const notchColors = { backgroundColor: theme.background, borderColor: theme.border };
 
   return (
-    <Card style={[styles.ticket, style]}>
+    <Card style={styles.ticket}>
       <View style={styles.details}>
         <View style={styles.eyebrow}>
           <ThemedText type="small" themeColor="textSecondary">
-            الاجتماع القادم
+            {label}
           </ThemedText>
           <Chip tone="success" icon="schedule" label={formatCountdown(startsAt)} />
         </View>
@@ -54,21 +61,14 @@ export function NextMeetingCard({ meeting, style }: { meeting: Meeting; style?: 
                 {meeting.location}
               </ThemedText>
             </View>
+            <View style={styles.row}>
+              <Icon name="groups" size={16} color={theme.primary} />
+              <ThemedText type="small" themeColor="primary" style={styles.shrink}>
+                {committeeName}
+              </ThemedText>
+            </View>
           </View>
         </View>
-
-        {videoLink && (
-          <Pressable
-            accessibilityRole="link"
-            onPress={() => Linking.openURL(videoLink)}
-            style={[styles.joinRow, { backgroundColor: theme.primarySoft }]}>
-            <Icon name="videocam" color={theme.primary} />
-            <ThemedText type="label" themeColor="primary" style={styles.grow}>
-              الانضمام عن بُعد
-            </ThemedText>
-            <Icon name="open_in_new" size={16} color={theme.primary} />
-          </Pressable>
-        )}
       </View>
 
       <View style={styles.tearLine}>
@@ -136,14 +136,6 @@ const styles = StyleSheet.create({
   },
   grow: {
     flex: 1,
-  },
-  joinRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.two,
-    minHeight: 44,
-    paddingHorizontal: Spacing.three - Spacing.one,
-    borderRadius: Radius.md,
   },
   tearLine: {
     height: NOTCH_SIZE,

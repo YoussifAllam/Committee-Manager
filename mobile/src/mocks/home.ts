@@ -21,14 +21,41 @@ export const committees: Committee[] = [
 
 export const unreadNotifications = 2;
 
-export const nextMeeting: Meeting = {
-  id: '1',
-  title: 'الاجتماع الإداري الأسبوعي',
-  startsAt: daysFromNow(3, 21, 30),
-  location: 'قاعة الاجتماعات الرئيسية',
-  videoLink: 'https://meet.google.com/',
-  agendaCount: 4,
-};
+// Upcoming meetings across all of the member's committees.
+export const meetings: Meeting[] = [
+  {
+    id: '1',
+    committeeId: '1',
+    title: 'الاجتماع الإداري الأسبوعي',
+    startsAt: daysFromNow(3, 21, 30),
+    location: 'قاعة الاجتماعات الرئيسية',
+    agendaCount: 4,
+  },
+  {
+    id: '2',
+    committeeId: '2',
+    title: 'اجتماع تخطيط أنشطة الشهر',
+    startsAt: daysFromNow(1, 19, 0),
+    location: 'قاعة الأنشطة',
+    agendaCount: 3,
+  },
+  {
+    id: '3',
+    committeeId: '3',
+    title: 'اجتماع لجنة المسجد الشهري',
+    startsAt: daysFromNow(6, 20, 0),
+    location: 'مكتب إدارة المسجد',
+    agendaCount: 5,
+  },
+  {
+    id: '4',
+    committeeId: '1',
+    title: 'مراجعة الميزانية الربع سنوية',
+    startsAt: daysFromNow(10, 18, 0),
+    location: 'قاعة الاجتماعات الرئيسية',
+    agendaCount: 2,
+  },
+];
 
 export const assignmentStats: AssignmentStats = { pending: 2, overdue: 2, completed: 1 };
 

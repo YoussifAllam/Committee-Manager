@@ -1,8 +1,8 @@
 export type Meeting = {
   id: string;
+  committeeId: string;
   title: string;
   startsAt: Date;
   location: string;
-  videoLink?: string;
   agendaCount: number;
 };
