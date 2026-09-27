@@ -1,47 +1,72 @@
 /**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
+ * Design tokens. "Ink" navy is the brand; semantic tones are reserved for things that need attention.
+ * Learn more about light and dark modes: https://docs.expo.dev/guides/color-schemes/
  */
-
-import { Platform } from 'react-native';
 
 export const Colors = {
   light: {
-    text: '#000000',
-    background: '#ffffff',
-    backgroundElement: '#F0F0F3',
-    backgroundSelected: '#E0E1E6',
-    textSecondary: '#60646C',
+    text: '#141A2E',
+    textSecondary: '#5A6479',
+    background: '#F3F5FA',
+    surface: '#FFFFFF',
+    surfaceMuted: '#F0F3F9',
+    border: '#E2E7F0',
+    primary: '#1B2B6B',
+    primarySoft: '#E7ECFA',
+    onPrimary: '#FFFFFF',
+    headerGradient: ['#22357F', '#0F1A47'],
+    info: '#2A5BD7',
+    infoSoft: '#E8EFFD',
+    violet: '#6D3FC0',
+    violetSoft: '#F0EAFB',
+    success: '#1E7F4F',
+    successSoft: '#E4F4EA',
+    warning: '#A15C0B',
+    warningSoft: '#FDF1DE',
+    danger: '#C8312B',
+    dangerSoft: '#FCEBEA',
   },
   dark: {
-    text: '#ffffff',
-    background: '#000000',
-    backgroundElement: '#212225',
-    backgroundSelected: '#2E3135',
-    textSecondary: '#B0B4BA',
+    text: '#E9EDF7',
+    textSecondary: '#A7B0C5',
+    background: '#0B1020',
+    surface: '#141B30',
+    surfaceMuted: '#1B2440',
+    border: '#26304D',
+    primary: '#8EA6FF',
+    primarySoft: '#1E2A52',
+    onPrimary: '#0B1020',
+    headerGradient: ['#1C2A62', '#0E1533'],
+    info: '#7FA6FF',
+    infoSoft: 'rgba(127, 166, 255, 0.14)',
+    violet: '#B79BFF',
+    violetSoft: 'rgba(183, 155, 255, 0.14)',
+    success: '#4CC98A',
+    successSoft: 'rgba(76, 201, 138, 0.14)',
+    warning: '#F5B544',
+    warningSoft: 'rgba(245, 181, 68, 0.14)',
+    danger: '#FF7A70',
+    dangerSoft: 'rgba(255, 122, 112, 0.14)',
   },
 } as const;
 
-export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
+export type ThemeColor = {
+  [K in keyof typeof Colors.light]: (typeof Colors.light)[K] extends string ? K : never;
+}[keyof typeof Colors.light];
 
-export const Fonts = Platform.select({
-  ios: {
-    /** iOS `UIFontDescriptorSystemDesignDefault` */
-    sans: 'system-ui',
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
-    serif: 'ui-serif',
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
-    rounded: 'ui-rounded',
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
-    mono: 'ui-monospace',
-  },
-  default: {
-    sans: 'normal',
-    serif: 'serif',
-    rounded: 'normal',
-    mono: 'monospace',
-  },
-});
+export type Tone = 'neutral' | 'info' | 'violet' | 'success' | 'warning' | 'danger';
+
+/**
+ * Loaded in the root layout. Android picks a weight by font file, not `fontWeight`,
+ * so every weight is its own family.
+ */
+export const Fonts = {
+  display: 'ReemKufi_700Bold',
+  regular: 'IBMPlexSansArabic_400Regular',
+  medium: 'IBMPlexSansArabic_500Medium',
+  semiBold: 'IBMPlexSansArabic_600SemiBold',
+  bold: 'IBMPlexSansArabic_700Bold',
+} as const;
 
 export const Spacing = {
   half: 2,
@@ -51,4 +76,11 @@ export const Spacing = {
   four: 24,
   five: 32,
   six: 64,
+} as const;
+
+export const Radius = {
+  sm: 8,
+  md: 12,
+  lg: 20,
+  pill: 999,
 } as const;

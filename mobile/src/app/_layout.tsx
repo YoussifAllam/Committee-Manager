@@ -1,16 +1,77 @@
+import {
+  IBMPlexSansArabic_400Regular,
+  IBMPlexSansArabic_500Medium,
+  IBMPlexSansArabic_600SemiBold,
+  IBMPlexSansArabic_700Bold,
+  useFonts,
+} from '@expo-google-fonts/ibm-plex-sans-arabic';
+import { ReemKufi_700Bold } from '@expo-google-fonts/reem-kufi';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
-import { useColorScheme } from 'react-native';
+import * as SplashScreen from 'expo-splash-screen';
+import { useEffect } from 'react';
+import { StyleSheet, useColorScheme, View } from 'react-native';
+
+import { Fonts } from '@/constants/theme';
+import { useTheme } from '@/hooks/use-theme';
+
+SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+  const theme = useTheme();
+  const [fontsLoaded, fontError] = useFonts({
+    IBMPlexSansArabic_400Regular,
+    IBMPlexSansArabic_500Medium,
+    IBMPlexSansArabic_600SemiBold,
+    IBMPlexSansArabic_700Bold,
+    ReemKufi_700Bold,
+  });
+  const ready = fontsLoaded || fontError;
+
+  useEffect(() => {
+    if (ready) SplashScreen.hideAsync();
+  }, [ready]);
+
+  if (!ready) return null;
+
+  const base = colorScheme === 'dark' ? DarkTheme : DefaultTheme;
+  const navigationTheme = {
+    ...base,
+    colors: {
+      ...base.colors,
+      primary: theme.primary,
+      background: theme.background,
+      card: theme.surface,
+      text: theme.text,
+      border: theme.border,
+    },
+    // Each weight is its own font file, so fontWeight stays normal to avoid faux bold on Android.
+    fonts: {
+      regular: { fontFamily: Fonts.regular, fontWeight: 'normal' },
+      medium: { fontFamily: Fonts.medium, fontWeight: 'normal' },
+      bold: { fontFamily: Fonts.bold, fontWeight: 'normal' },
+      heavy: { fontFamily: Fonts.bold, fontWeight: 'normal' },
+    },
+  } as const;
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="meetings/[id]" options={{ title: 'Meeting' }} />
-        <Stack.Screen name="meetings/new" options={{ title: 'New meeting', presentation: 'modal' }} />
-      </Stack>
+    <ThemeProvider value={navigationTheme}>
+      {/* The app is Arabic-only. Builds force RTL natively (expo-localization plugin in app.json);
+          this also mirrors layout in Expo Go, which ignores that plugin. */}
+      <View style={styles.rtl}>
+        <Stack screenOptions={{ headerShadowVisible: false }}>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="meetings/[id]" options={{ title: 'الاجتماع' }} />
+          <Stack.Screen name="meetings/new" options={{ title: 'اجتماع جديد', presentation: 'modal' }} />
+        </Stack>
+      </View>
     </ThemeProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  rtl: {
+    flex: 1,
+    direction: 'rtl',
+  },
+});

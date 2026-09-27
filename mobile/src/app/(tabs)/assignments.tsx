@@ -1,10 +1,10 @@
 import { Screen } from '@/components/screen';
 import { ThemedText } from '@/components/themed-text';
 
-export default function ProfileScreen() {
+export default function AssignmentsScreen() {
   return (
     <Screen>
-      <ThemedText type="subtitle">Profile</ThemedText>
+      <ThemedText type="title">التكليفات</ThemedText>
     </Screen>
   );
 }

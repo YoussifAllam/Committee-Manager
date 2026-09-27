@@ -1,10 +1,10 @@
 import { Screen } from '@/components/screen';
 import { ThemedText } from '@/components/themed-text';
 
-export default function CalendarScreen() {
+export default function RemindersScreen() {
   return (
     <Screen>
-      <ThemedText type="subtitle">Calendar</ThemedText>
+      <ThemedText type="title">فكّرني</ThemedText>
     </Screen>
   );
 }
