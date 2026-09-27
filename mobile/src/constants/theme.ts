@@ -34,13 +34,13 @@ export type Tone = 'neutral' | 'info' | 'violet' | 'success' | 'warning' | 'dang
 
 /**
  * Loaded in the root layout. Android picks a weight by font file, not `fontWeight`,
- * so every weight is its own family.
+ * so every weight is its own family. Tajawal has no 600, so buttons and headings share 700.
  */
 export const Fonts = {
-  regular: 'IBMPlexSansArabic_400Regular',
-  medium: 'IBMPlexSansArabic_500Medium',
-  semiBold: 'IBMPlexSansArabic_600SemiBold',
-  bold: 'IBMPlexSansArabic_700Bold',
+  regular: 'Tajawal_400Regular',
+  medium: 'Tajawal_500Medium',
+  semiBold: 'Tajawal_700Bold',
+  bold: 'Tajawal_700Bold',
 } as const;
 
 export const Spacing = {
