@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { PageHeader } from '@/components/page-header';
 import { SegmentedControl } from '@/components/segmented-control';
@@ -18,7 +17,6 @@ type Status = 'open' | 'completed';
 /** The member's assignments in the selected committee (the same committee chosen on the home screen). */
 export default function AssignmentsScreen() {
   const theme = useTheme();
-  const insets = useSafeAreaInsets();
   const { committee } = useSelectedCommittee();
   const [status, setStatus] = useState<Status>('open');
   const inCommittee = assignments.filter((assignment) => assignment.committee.id === committee.id);
@@ -32,7 +30,7 @@ export default function AssignmentsScreen() {
       keyExtractor={(assignment) => assignment.id}
       renderItem={({ item }) => <AssignmentCard assignment={item} />}
       style={{ backgroundColor: theme.background }}
-      contentContainerStyle={[styles.content, { paddingTop: insets.top + Spacing.three }]}
+      contentContainerStyle={styles.content}
       ListHeaderComponent={
         <View style={styles.header}>
           <PageHeader title="التكليفات" subtitle="متابعة إنجاز مهامك الناتجة عن الاجتماعات وتحديث حالاتها.">
@@ -62,6 +60,7 @@ export default function AssignmentsScreen() {
 const styles = StyleSheet.create({
   content: {
     paddingHorizontal: Spacing.three,
+    paddingTop: Spacing.three,
     paddingBottom: Spacing.four,
     gap: Spacing.three - Spacing.one,
   },

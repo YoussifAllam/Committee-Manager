@@ -1,6 +1,5 @@
 import { router } from 'expo-router';
 import { FlatList, StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/button';
 import { Chip } from '@/components/chip';
@@ -16,7 +15,6 @@ import { useTheme } from '@/hooks/use-theme';
 /** The member's private reminders. Not tied to a committee, so there is no committee filter. */
 export default function RemindersScreen() {
   const theme = useTheme();
-  const insets = useSafeAreaInsets();
   const { reminders } = useReminders();
 
   return (
@@ -25,7 +23,7 @@ export default function RemindersScreen() {
       keyExtractor={(reminder) => reminder.id}
       renderItem={({ item }) => <ReminderCard reminder={item} />}
       style={{ backgroundColor: theme.background }}
-      contentContainerStyle={[styles.content, { paddingTop: insets.top + Spacing.three }]}
+      contentContainerStyle={styles.content}
       ListHeaderComponent={
         <PageHeader
           title="فكّرني — التذكيرات الشخصية"
@@ -52,6 +50,7 @@ export default function RemindersScreen() {
 const styles = StyleSheet.create({
   content: {
     paddingHorizontal: Spacing.three,
+    paddingTop: Spacing.three,
     paddingBottom: Spacing.four,
     gap: Spacing.three - Spacing.one,
   },

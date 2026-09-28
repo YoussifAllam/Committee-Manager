@@ -68,6 +68,8 @@ export default function RootLayout() {
               <Stack.Screen name="assignments/[id]" options={{ title: 'التكليف' }} />
               <Stack.Screen name="reminders/new" options={{ title: 'تذكير جديد', presentation: 'modal' }} />
               <Stack.Screen name="reminders/[id]" options={{ title: 'تعديل التذكير', presentation: 'modal' }} />
+              <Stack.Screen name="notifications" options={{ title: 'الإشعارات' }} />
+              <Stack.Screen name="profile" options={{ title: 'الملف الشخصي' }} />
             </Stack>
             {showSplash && <SplashOverlay />}
           </View>

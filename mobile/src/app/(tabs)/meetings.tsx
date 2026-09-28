@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { PageHeader } from '@/components/page-header';
 import { SegmentedControl } from '@/components/segmented-control';
@@ -16,7 +15,6 @@ type Period = 'upcoming' | 'past';
 /** Every meeting from every committee the member belongs to; there is no committee filter here. */
 export default function MeetingsScreen() {
   const theme = useTheme();
-  const insets = useSafeAreaInsets();
   const [period, setPeriod] = useState<Period>('upcoming');
   const upcoming = upcomingMeetings(meetings);
   const past = pastMeetings(meetings);
@@ -28,7 +26,7 @@ export default function MeetingsScreen() {
       keyExtractor={(meeting) => meeting.id}
       renderItem={({ item }) => <MeetingCard meeting={item} isPast={isPast} />}
       style={{ backgroundColor: theme.background }}
-      contentContainerStyle={[styles.content, { paddingTop: insets.top + Spacing.three }]}
+      contentContainerStyle={styles.content}
       ListHeaderComponent={
         <View style={styles.header}>
           <PageHeader
@@ -57,6 +55,7 @@ export default function MeetingsScreen() {
 const styles = StyleSheet.create({
   content: {
     paddingHorizontal: Spacing.three,
+    paddingTop: Spacing.three,
     paddingBottom: Spacing.four,
     gap: Spacing.three - Spacing.one,
   },

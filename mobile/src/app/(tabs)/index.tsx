@@ -1,19 +1,22 @@
 import { Link, type Href } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
+import { Chip } from '@/components/chip';
 import { Icon } from '@/components/icon';
+import { PageHeader } from '@/components/page-header';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { AssignmentCard } from '@/features/assignments/assignment-card';
 import { AssignmentsSummary } from '@/features/assignments/assignments-summary';
 import { needingAttention, summarize } from '@/features/assignments/selectors';
+import { CommitteePicker } from '@/features/committees/committee-picker';
 import { useSelectedCommittee } from '@/features/committees/selected-committee';
-import { HomeHeader } from '@/features/home/home-header';
 import { MeetingSummaryCard } from '@/features/meetings/meeting-summary-card';
 import { NextMeetingCard } from '@/features/meetings/next-meeting-card';
 import { upcomingMeetings } from '@/features/meetings/schedule';
 import { useTheme } from '@/hooks/use-theme';
-import { assignments, currentUser, meetings, unreadNotifications } from '@/mocks/data';
+import { assignments, currentUser, meetings } from '@/mocks/data';
+import { greeting } from '@/utils/date';
 
 export default function HomeScreen() {
   const theme = useTheme();
@@ -29,48 +32,51 @@ export default function HomeScreen() {
 
   return (
     <ScrollView style={{ backgroundColor: theme.background }} contentContainerStyle={styles.content}>
-      <HomeHeader userName={currentUser.name} unreadNotifications={unreadNotifications} />
+      <PageHeader
+        title={`${greeting()}، ${currentUser.name.split(' ')[0]}`}
+        subtitle="نظرة سريعة على اجتماعاتك وتكليفاتك في اللجنة المختارة."
+        badge={<Chip tone="info" icon="shield_person" label={selectedCommittee.role} />}>
+        <CommitteePicker />
+      </PageHeader>
 
-      <View style={styles.body}>
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <ThemedText type="title">الاجتماعات القادمة</ThemedText>
-            <SeeAllLink href="/meetings" label="كل الاجتماعات" />
-          </View>
-          {nextOverall ? (
-            <NextMeetingCard
-              meeting={nextOverall}
-              label={committees.length > 1 ? 'الأقرب في كل لجانك' : 'الاجتماع القادم'}
-            />
-          ) : (
-            <ThemedText themeColor="textSecondary">لا توجد اجتماعات قادمة.</ThemedText>
-          )}
-          {showSelectedCommittee && (
-            <MeetingSummaryCard
-              meeting={nextInSelected}
-              label={`الأقرب في ${selectedCommittee.name}`}
-              emptyText={`لا توجد اجتماعات قادمة في ${selectedCommittee.name}.`}
-            />
-          )}
+      <View style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <ThemedText type="title">الاجتماعات القادمة</ThemedText>
+          <SeeAllLink href="/meetings" label="كل الاجتماعات" />
         </View>
+        {nextOverall ? (
+          <NextMeetingCard
+            meeting={nextOverall}
+            label={committees.length > 1 ? 'الأقرب في كل لجانك' : 'الاجتماع القادم'}
+          />
+        ) : (
+          <ThemedText themeColor="textSecondary">لا توجد اجتماعات قادمة.</ThemedText>
+        )}
+        {showSelectedCommittee && (
+          <MeetingSummaryCard
+            meeting={nextInSelected}
+            label={`الأقرب في ${selectedCommittee.name}`}
+            emptyText={`لا توجد اجتماعات قادمة في ${selectedCommittee.name}.`}
+          />
+        )}
+      </View>
 
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <ThemedText type="title">ملخص تكليفاتي</ThemedText>
-            <SeeAllLink href="/assignments" label="كل التكليفات" />
-          </View>
-          <AssignmentsSummary stats={summarize(committeeAssignments)} />
+      <View style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <ThemedText type="title">ملخص تكليفاتي</ThemedText>
+          <SeeAllLink href="/assignments" label="كل التكليفات" />
         </View>
+        <AssignmentsSummary stats={summarize(committeeAssignments)} />
+      </View>
 
-        <View style={styles.section}>
-          <ThemedText type="title">التكليفات الجارية والعاجلة</ThemedText>
-          {attention.length === 0 && (
-            <ThemedText themeColor="textSecondary">لا توجد تكليفات عاجلة أو متأخرة.</ThemedText>
-          )}
-          {attention.map((assignment) => (
-            <AssignmentCard key={assignment.id} assignment={assignment} />
-          ))}
-        </View>
+      <View style={styles.section}>
+        <ThemedText type="title">التكليفات الجارية والعاجلة</ThemedText>
+        {attention.length === 0 && (
+          <ThemedText themeColor="textSecondary">لا توجد تكليفات عاجلة أو متأخرة.</ThemedText>
+        )}
+        {attention.map((assignment) => (
+          <AssignmentCard key={assignment.id} assignment={assignment} />
+        ))}
       </View>
     </ScrollView>
   );
@@ -93,10 +99,8 @@ function SeeAllLink({ href, label }: { href: Href; label: string }) {
 
 const styles = StyleSheet.create({
   content: {
+    padding: Spacing.three,
     paddingBottom: Spacing.four,
-  },
-  body: {
-    paddingHorizontal: Spacing.three,
     gap: Spacing.four,
   },
   section: {
