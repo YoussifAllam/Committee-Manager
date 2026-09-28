@@ -4,7 +4,7 @@
 MOBILE := mobile
 
 .DEFAULT_GOAL := help
-.PHONY: help install start usb tunnel android apk lint typecheck doctor check clean
+.PHONY: help install start usb tunnel android apk apk-local lint typecheck doctor check clean
 
 help: ## List available targets
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*## "}; {printf "  \033[36m%-10s\033[0m %s\n", $$1, $$2}'
@@ -29,6 +29,15 @@ android: ## Start and open on an Android emulator or USB device (needs the Andro
 
 apk: ## Build an installable Android APK on Expo's servers (EAS; needs a free Expo account)
 	cd $(MOBILE) && npx eas-cli@latest build --platform android --profile preview
+
+# Local builds use JDK 17 and the Android SDK installed under ~/Android.
+ANDROID_ENV := JAVA_HOME=$(HOME)/Android/jdk-17 ANDROID_HOME=$(HOME)/Android/Sdk
+APK := $(MOBILE)/android/app/build/outputs/apk/release/app-release.apk
+
+apk-local: ## Build a release APK on this computer (64-bit ARM phones); copy it to the phone and install it
+	cd $(MOBILE) && npx expo prebuild --platform android --no-install
+	cd $(MOBILE)/android && $(ANDROID_ENV) ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a
+	@echo "APK ready: $(APK)"
 
 lint: ## Lint the mobile app
 	cd $(MOBILE) && npm run lint

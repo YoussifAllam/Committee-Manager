@@ -35,8 +35,16 @@ instead:
 This needs `adb` installed (`sudo dnf install android-tools` on Fedora) and, on Linux, a udev rule so `adb` can
 access the device without root — see `/etc/udev/rules.d/51-android.rules`.
 
-To build an installable APK, use EAS (`npx eas-cli@latest build -p android`). Once you add native modules
-that Expo Go doesn't bundle, you'll also need a development build (see [AGENTS.md](AGENTS.md)).
+### Build an APK
+
+- **On this computer:** `make apk-local` generates `android/` (`expo prebuild`) and builds a release APK for 64-bit
+  ARM phones at `android/app/build/outputs/apk/release/app-release.apk`. Copy it to the phone and install it. It
+  needs JDK 17 in `~/Android/jdk-17` and the Android SDK in `~/Android/Sdk`, plus about 6 GB of free RAM. The first
+  build downloads dependencies and takes a while; later builds take minutes. The APK is signed with the debug key,
+  which is fine for testing but not for the Play Store.
+- **On Expo's servers:** `make apk` (EAS Build, free Expo account). Nothing to install locally.
+
+`android/` is generated and git-ignored. Configure native behaviour in `app.json`, never by editing it.
 
 ## Reminders (فكّرني)
 
