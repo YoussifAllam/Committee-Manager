@@ -77,6 +77,12 @@ function openPicker(mode: 'date' | 'time', value: Date, onPick: (picked: Date) =
   });
 }
 
+/** Back to where the form was opened from, or to the list when it was opened directly (a link or a notification). */
+function close() {
+  if (router.canGoBack()) router.back();
+  else router.replace('/reminders');
+}
+
 /** Create/edit form shared by /reminders/new and /reminders/[id]/edit. */
 export function ReminderForm({ reminder }: { reminder?: Reminder }) {
   const theme = useTheme();
@@ -152,7 +158,7 @@ export function ReminderForm({ reminder }: { reminder?: Reminder }) {
     setSaving(true);
     try {
       const { delivery } = await store.save(draft, reminder?.id);
-      router.back();
+      close();
       showToast(deliveryToast(delivery, reminder ? 'تم تحديث التذكير بنجاح.' : 'تم إنشاء التذكير وسيصلك في موعده.'));
     } catch {
       // Stay on the form so nothing the member typed is lost.
@@ -361,7 +367,7 @@ export function ReminderForm({ reminder }: { reminder?: Reminder }) {
           { backgroundColor: theme.surface, borderTopColor: theme.border, paddingBottom: insets.bottom + Spacing.three },
         ]}>
         <Button label="حفظ التذكير" icon="check" disabled={saving} onPress={onSave} style={styles.grow} />
-        <Button label="إلغاء" variant="tonal" disabled={saving} onPress={() => router.back()} />
+        <Button label="إلغاء" variant="tonal" disabled={saving} onPress={close} />
       </View>
 
       <PermissionPrompt

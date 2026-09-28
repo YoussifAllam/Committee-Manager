@@ -38,6 +38,27 @@ access the device without root — see `/etc/udev/rules.d/51-android.rules`.
 To build an installable APK, use EAS (`npx eas-cli@latest build -p android`). Once you add native modules
 that Expo Go doesn't bundle, you'll also need a development build (see [AGENTS.md](AGENTS.md)).
 
+## Reminders (فكّرني)
+
+Personal reminders are local-only: they're stored in SQLite on the phone (`expo-sqlite`) and delivered by the OS
+notification scheduler (`expo-notifications`: AlarmManager on Android). No server, Firebase or internet connection is
+involved, and alerts arrive while the app is closed. The code lives in `src/features/reminders/`:
+
+- `recurrence.ts` — pure rules: occurrences, Arabic descriptions, and the notification plan with stable identifiers.
+- `repository.ts` — the SQLite database (`repository.web.ts`: IndexedDB for the web preview only).
+- `scheduler.ts` — the OS scheduler (`scheduler.web.ts`: a stub; browsers can't alert after the tab closes).
+- `service.ts` — every change goes through here: write the database, then make the OS schedule match it.
+- `background-task.ts` — handles the notification buttons "تم" / "ذكّرني لاحقًا" while the app is closed.
+  It's registered from `index.ts`, the app entry, before anything renders.
+
+Open-ended daily and weekly rules use native repeating triggers. Other rules keep a window of the next 8
+occurrences, which is topped up every time the app opens or resumes. expo-notifications re-registers alarms after a
+reboot or an app update.
+
+Expo Go can schedule local notifications, but the reboot handling, the buttons working while the app is closed, and
+the app name on notifications need a development build (`npx expo run:android` or
+`npx eas-cli@latest build --profile development -p android`).
+
 ## Checks
 
 ```bash
@@ -57,8 +78,9 @@ src/
     (tabs)/             # Bottom tabs: Home, Meetings, Assignments, Reminders, More
     meetings/[id].tsx   # Meeting details   /meetings/:id
     meetings/new.tsx    # Create meeting (modal)
+    reminders/          # فكّرني: new, [id] details, [id]/edit, settings
   components/           # Shared UI: Screen, Card, Button, Chip, Icon, ThemedText
-  features/             # Per-feature components and types (home, meetings, assignments)
+  features/             # Per-feature components, types and logic (meetings, assignments, reminders, …)
   mocks/                # Placeholder data until the Django API exists
   utils/date.ts         # Arabic date, time and countdown formatting
   constants/theme.ts    # Colors (light/dark), fonts, spacing, radius

@@ -4,7 +4,7 @@
 MOBILE := mobile
 
 .DEFAULT_GOAL := help
-.PHONY: help install start usb tunnel android lint typecheck doctor check clean
+.PHONY: help install start usb tunnel android apk lint typecheck doctor check clean
 
 help: ## List available targets
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*## "}; {printf "  \033[36m%-10s\033[0m %s\n", $$1, $$2}'
@@ -26,6 +26,9 @@ tunnel: ## Start the dev server over an internet tunnel; use when the phone can'
 
 android: ## Start and open on an Android emulator or USB device (needs the Android SDK)
 	cd $(MOBILE) && npm run android
+
+apk: ## Build an installable Android APK on Expo's servers (EAS; needs a free Expo account)
+	cd $(MOBILE) && npx eas-cli@latest build --platform android --profile preview
 
 lint: ## Lint the mobile app
 	cd $(MOBILE) && npm run lint

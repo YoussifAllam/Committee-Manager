@@ -53,8 +53,10 @@ export function ConfirmDialog({
 }
 
 const styles = StyleSheet.create({
+  // A modal is its own root, outside the app's RTL view, so it sets the direction again.
   backdrop: {
     flex: 1,
+    direction: 'rtl',
     justifyContent: 'center',
     padding: Spacing.four,
     backgroundColor: 'rgba(20, 26, 46, 0.4)',

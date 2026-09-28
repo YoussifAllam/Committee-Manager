@@ -20,17 +20,24 @@ export function Sheet({ visible, onClose, title, children }: SheetProps) {
 
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-      <Pressable accessibilityLabel="إغلاق" style={styles.backdrop} onPress={onClose} />
-      <View style={[styles.sheet, { backgroundColor: theme.surface, paddingBottom: insets.bottom + Spacing.three }]}>
-        <View style={[styles.handle, { backgroundColor: theme.border }]} />
-        {title && <ThemedText type="heading">{title}</ThemedText>}
-        {children}
+      {/* A modal is its own root, outside the app's RTL view, so it sets the direction again. */}
+      <View style={styles.root}>
+        <Pressable accessibilityLabel="إغلاق" style={styles.backdrop} onPress={onClose} />
+        <View style={[styles.sheet, { backgroundColor: theme.surface, paddingBottom: insets.bottom + Spacing.three }]}>
+          <View style={[styles.handle, { backgroundColor: theme.border }]} />
+          {title && <ThemedText type="heading">{title}</ThemedText>}
+          {children}
+        </View>
       </View>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    direction: 'rtl',
+  },
   backdrop: {
     flex: 1,
     backgroundColor: 'rgba(20, 26, 46, 0.4)',
