@@ -34,6 +34,8 @@ export async function replaceSchedule(
 
 export async function scheduleSnooze(_reminder: Reminder, _at: Date, _occurrence: Date) {}
 
+export async function cancelSnooze(_reminderId: string) {}
+
 export async function cancelAll(_reminderId: string) {}
 
 export async function getPresentedReminderIds() {

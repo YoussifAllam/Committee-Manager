@@ -188,6 +188,10 @@ export async function scheduleSnooze(reminder: Reminder, at: Date, occurrence: D
   });
 }
 
+export async function cancelSnooze(reminderId: string) {
+  await Notifications.cancelScheduledNotificationAsync(snoozeIdentifier(reminderId));
+}
+
 /** Cancels everything scheduled for the reminder, including a snooze, and clears its alerts from the tray. */
 export async function cancelAll(reminderId: string) {
   const prefix = notificationPrefix(reminderId);
@@ -204,7 +208,11 @@ export async function cancelAll(reminderId: string) {
 /** Ids of reminders that have a delivered alert still sitting in the notification tray. */
 export async function getPresentedReminderIds() {
   const presented = await Notifications.getPresentedNotificationsAsync();
-  return new Set(presented.map((notification) => readData(notification.request.content)?.reminderId).filter(Boolean));
+  return new Set(
+    presented
+      .map((notification) => readData(notification.request.content)?.reminderId)
+      .filter((id): id is string => !!id),
+  );
 }
 
 export async function dismiss(notificationId: string) {

@@ -8,28 +8,44 @@ import { useTheme } from '@/hooks/use-theme';
 type ButtonProps = {
   label: string;
   icon?: IconName;
-  variant?: 'primary' | 'tonal';
+  /** primary: the screen's main action; tonal: secondary; plain: low-emphasis; danger: destructive. */
+  variant?: 'primary' | 'tonal' | 'plain' | 'danger';
   compact?: boolean;
+  disabled?: boolean;
+  accessibilityLabel?: string;
   onPress?: () => void;
   style?: StyleProp<ViewStyle>;
 };
 
-export function Button({ label, icon, variant = 'primary', compact, onPress, style }: ButtonProps) {
+export function Button({
+  label,
+  icon,
+  variant = 'primary',
+  compact,
+  disabled,
+  accessibilityLabel,
+  onPress,
+  style,
+}: ButtonProps) {
   const theme = useTheme();
-  const isPrimary = variant === 'primary';
-  const color = isPrimary ? theme.onPrimary : theme.primary;
+  const [backgroundColor, color] = {
+    primary: [theme.primary, theme.onPrimary],
+    tonal: [theme.primarySoft, theme.primary],
+    plain: ['transparent', theme.textSecondary],
+    danger: [theme.dangerSoft, theme.danger],
+  }[variant];
 
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
+      accessibilityState={{ disabled }}
+      disabled={disabled}
+      // Compact buttons are drawn 36 high; the slop keeps the touch area at 44.
+      hitSlop={compact ? { top: Spacing.one, bottom: Spacing.one } : undefined}
       onPress={onPress}
-      android_ripple={{ color: isPrimary ? 'rgba(255, 255, 255, 0.2)' : 'rgba(30, 58, 138, 0.12)' }}
-      style={[
-        styles.button,
-        compact && styles.compact,
-        { backgroundColor: isPrimary ? theme.primary : theme.primarySoft },
-        style,
-      ]}>
+      android_ripple={{ color: variant === 'primary' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(30, 58, 138, 0.12)' }}
+      style={[styles.button, compact && styles.compact, { backgroundColor }, disabled && styles.disabled, style]}>
       {icon && <Icon name={icon} size={compact ? 18 : 20} color={color} />}
       <ThemedText type="label" style={{ color }}>
         {label}
@@ -53,5 +69,8 @@ const styles = StyleSheet.create({
     minHeight: 36,
     paddingHorizontal: Spacing.three - Spacing.one,
     alignSelf: 'flex-start',
+  },
+  disabled: {
+    opacity: 0.5,
   },
 });

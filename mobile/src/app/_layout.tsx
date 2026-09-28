@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { SplashOverlay } from '@/components/splash-overlay';
+import { ToastProvider } from '@/components/toast';
 import { Fonts } from '@/constants/theme';
 import { SelectedCommitteeProvider } from '@/features/committees/selected-committee';
 import { RemindersProvider } from '@/features/reminders/reminders-store';
@@ -61,16 +62,20 @@ export default function RootLayout() {
       <SelectedCommitteeProvider>
         <RemindersProvider>
           <View style={styles.rtl}>
-            <Stack screenOptions={{ headerShadowVisible: false }}>
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-              <Stack.Screen name="meetings/[id]" options={{ title: 'الاجتماع' }} />
-              <Stack.Screen name="meetings/new" options={{ title: 'اجتماع جديد', presentation: 'modal' }} />
-              <Stack.Screen name="assignments/[id]" options={{ title: 'التكليف' }} />
-              <Stack.Screen name="reminders/new" options={{ title: 'تذكير جديد', presentation: 'modal' }} />
-              <Stack.Screen name="reminders/[id]" options={{ title: 'تعديل التذكير', presentation: 'modal' }} />
-              <Stack.Screen name="notifications" options={{ title: 'الإشعارات' }} />
-              <Stack.Screen name="profile" options={{ title: 'الملف الشخصي' }} />
-            </Stack>
+            <ToastProvider>
+              <Stack screenOptions={{ headerShadowVisible: false }}>
+                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                <Stack.Screen name="meetings/[id]" options={{ title: 'الاجتماع' }} />
+                <Stack.Screen name="meetings/new" options={{ title: 'اجتماع جديد', presentation: 'modal' }} />
+                <Stack.Screen name="assignments/[id]" options={{ title: 'التكليف' }} />
+                <Stack.Screen name="reminders/new" options={{ title: 'إضافة تذكير', presentation: 'modal' }} />
+                <Stack.Screen name="reminders/[id]/index" options={{ title: 'تفاصيل التذكير' }} />
+                <Stack.Screen name="reminders/[id]/edit" options={{ title: 'تعديل التذكير', presentation: 'modal' }} />
+                <Stack.Screen name="reminders/settings" options={{ title: 'إعدادات فكّرني' }} />
+                <Stack.Screen name="notifications" options={{ title: 'الإشعارات' }} />
+                <Stack.Screen name="profile" options={{ title: 'الملف الشخصي' }} />
+              </Stack>
+            </ToastProvider>
             {showSplash && <SplashOverlay />}
           </View>
         </RemindersProvider>

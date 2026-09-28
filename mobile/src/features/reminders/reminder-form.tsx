@@ -1,41 +1,70 @@
 import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { router } from 'expo-router';
 import { useState, type ReactNode } from 'react';
-import { Pressable, ScrollView, StyleSheet, Switch, TextInput, View, type StyleProp, type ViewStyle } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, Switch, TextInput, View, type StyleProp, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/button';
 import { Icon, type IconName } from '@/components/icon';
 import { ThemedText } from '@/components/themed-text';
+import { useToast } from '@/components/toast';
 import { Fonts, Radius, Spacing } from '@/constants/theme';
-import { useReminders } from '@/features/reminders/reminders-store';
-import { scheduleSummary } from '@/features/reminders/schedule';
-import type { Reminder, Repeat } from '@/features/reminders/types';
+import { deliveryToast } from '@/features/reminders/delivery-toast';
+import { openExactAlarmSettings } from '@/features/reminders/device-settings';
+import { PermissionPrompt } from '@/features/reminders/permission-prompt';
+import {
+  atTime,
+  nextOccurrence,
+  parseDateKey,
+  scheduleSummary,
+  toDateKey,
+  toTimeKey,
+  WEEK_ORDER,
+} from '@/features/reminders/recurrence';
+import { shouldExplainPermission, useReminders } from '@/features/reminders/reminders-store';
+import type { EndType, Reminder, ReminderDraft, RepeatType } from '@/features/reminders/types';
 import { useTheme } from '@/hooks/use-theme';
-import { addDays, formatLongDate, formatTime, startOfDay, WEEKDAYS } from '@/utils/date';
+import { addDays, formatLongDate, formatTime, startOfDay, weekdayName, WEEKDAYS } from '@/utils/date';
 
-type RepeatMode = 'weekly' | '14' | '30' | 'custom';
+type Repeating = Exclude<RepeatType, 'none'>;
 
-const MODES: { value: RepeatMode; label: string }[] = [
+const REPEAT_OPTIONS: { value: Repeating; label: string }[] = [
+  { value: 'daily', label: 'يوميًا' },
+  { value: 'selected_weekdays', label: 'في أيام محددة' },
   { value: 'weekly', label: 'أسبوعيًا' },
-  { value: '14', label: 'كل 14 يومًا' },
-  { value: '30', label: 'كل 30 يومًا' },
-  { value: 'custom', label: 'عدد أيام مخصص' },
+  { value: 'every_n_days', label: 'كل عدد معين من الأيام' },
 ];
 
-// Short chip labels: "الاثنين" → "اثنين".
-const WEEKDAY_CHIPS = WEEKDAYS.map((name) => name.replace(/^ال/, ''));
+const INTERVAL_PRESETS = [
+  { days: 7, label: '7 أيام' },
+  { days: 14, label: '14 يومًا' },
+  { days: 30, label: '30 يومًا' },
+];
 
-function initialMode(repeat?: Repeat): RepeatMode {
-  if (repeat?.kind !== 'interval') return 'weekly';
-  return repeat.days === 14 || repeat.days === 30 ? (String(repeat.days) as RepeatMode) : 'custom';
+const END_OPTIONS: { value: EndType; label: string }[] = [
+  { value: 'never', label: 'بدون تاريخ انتهاء' },
+  { value: 'on_date', label: 'في تاريخ معين' },
+  { value: 'after_occurrences', label: 'بعد عدد من المرات' },
+];
+
+type SnoozeChoice = 10 | 30 | 60 | 'custom';
+
+const SNOOZE_OPTIONS: { value: SnoozeChoice; label: string }[] = [
+  { value: 10, label: 'بعد 10 دقائق' },
+  { value: 30, label: 'بعد 30 دقيقة' },
+  { value: 60, label: 'بعد ساعة' },
+  { value: 'custom', label: 'وقت مخصص' },
+];
+
+/** Whole positive numbers only; Arabic-Indic digits typed on an Arabic keyboard count too. */
+function toCount(text: string) {
+  const latin = text.trim().replace(/[٠-٩]/g, (digit) => String(digit.charCodeAt(0) - 0x0660));
+  return /^\d+$/.test(latin) && Number(latin) > 0 ? Number(latin) : null;
 }
 
-/** A new reminder starts tomorrow at 9:00 صباحًا. */
+/** A new reminder starts tomorrow at 09:00 صباحًا. */
 function defaultStart() {
-  const tomorrow = addDays(startOfDay(new Date()), 1);
-  tomorrow.setHours(9);
-  return tomorrow;
+  return atTime(addDays(startOfDay(new Date()), 1), '09:00');
 }
 
 function openPicker(mode: 'date' | 'time', value: Date, onPick: (picked: Date) => void) {
@@ -48,147 +77,181 @@ function openPicker(mode: 'date' | 'time', value: Date, onPick: (picked: Date) =
   });
 }
 
-/** Create/edit form shared by /reminders/new and /reminders/[id]. */
+/** Create/edit form shared by /reminders/new and /reminders/[id]/edit. */
 export function ReminderForm({ reminder }: { reminder?: Reminder }) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
-  const { save } = useReminders();
+  const store = useReminders();
+  const showToast = useToast();
 
   const [title, setTitle] = useState(reminder?.title ?? '');
   const [message, setMessage] = useState(reminder?.message ?? '');
-  const [startsAt, setStartsAt] = useState(reminder?.startsAt ?? defaultStart);
-  const [repeats, setRepeats] = useState(reminder ? reminder.repeat.kind !== 'none' : false);
-  const [mode, setMode] = useState(initialMode(reminder?.repeat));
-  const [weekdays, setWeekdays] = useState(
-    reminder?.repeat.kind === 'weekly' ? reminder.repeat.weekdays : [startsAt.getDay()],
+  const [startsAt, setStartsAt] = useState(() =>
+    reminder ? atTime(parseDateKey(reminder.startDate), reminder.time) : defaultStart(),
   );
-  const [customDays, setCustomDays] = useState(reminder?.repeat.kind === 'interval' ? String(reminder.repeat.days) : '7');
-  const [endsOn, setEndsOn] = useState(reminder?.endsOn);
-  // Errors only show after the first save attempt, not while the user is still typing.
+  const [repeats, setRepeats] = useState(reminder ? reminder.repeatType !== 'none' : false);
+  const [repeatType, setRepeatType] = useState<Repeating>(
+    reminder && reminder.repeatType !== 'none' ? reminder.repeatType : 'daily',
+  );
+  const [weekdays, setWeekdays] = useState(() =>
+    reminder?.selectedWeekdays.length ? reminder.selectedWeekdays : [startsAt.getDay()],
+  );
+  const [intervalText, setIntervalText] = useState(String(reminder?.intervalDays ?? 14));
+  const [endType, setEndType] = useState<EndType>(reminder?.endType ?? 'never');
+  const [endDate, setEndDate] = useState(reminder?.endDate ? parseDateKey(reminder.endDate) : null);
+  const [maxText, setMaxText] = useState(String(reminder?.maxOccurrences ?? 10));
+  const [exactTiming, setExactTiming] = useState(reminder?.exactTiming ?? false);
+  const [snoozeChoice, setSnoozeChoice] = useState<SnoozeChoice>(() => {
+    const minutes = reminder?.snoozeMinutes ?? 60;
+    return minutes === 10 || minutes === 30 || minutes === 60 ? minutes : 'custom';
+  });
+  const [snoozeText, setSnoozeText] = useState(String(reminder?.snoozeMinutes ?? 15));
+  // Errors show after the first save attempt, not while the member is still typing.
   const [submitted, setSubmitted] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [explainPermission, setExplainPermission] = useState(false);
 
-  function toRepeat(): Repeat {
-    if (!repeats) return { kind: 'none' };
-    if (mode === 'weekly') return { kind: 'weekly', weekdays };
-    return { kind: 'interval', days: Number(mode === 'custom' ? customDays : mode) };
-  }
-  const repeat = toRepeat();
+  const draft: ReminderDraft = {
+    title,
+    message,
+    startDate: toDateKey(startsAt),
+    time: toTimeKey(startsAt),
+    repeatType: repeats ? repeatType : 'none',
+    selectedWeekdays: weekdays,
+    intervalDays: toCount(intervalText),
+    endType: repeats ? endType : 'never',
+    endDate: endDate ? toDateKey(endDate) : null,
+    maxOccurrences: toCount(maxText),
+    exactTiming,
+    snoozeMinutes: snoozeChoice === 'custom' ? (toCount(snoozeText) ?? 0) : snoozeChoice,
+  };
 
+  const now = new Date();
   const errors = {
     title: title.trim() ? '' : 'اكتب عنوانًا للتذكير.',
-    startsAt: repeat.kind === 'none' && startsAt <= new Date() ? 'اختر موعدًا لم يمر بعد.' : '',
-    weekdays: repeat.kind === 'weekly' && weekdays.length === 0 ? 'اختر يومًا واحدًا على الأقل.' : '',
-    customDays:
-      repeat.kind === 'interval' && !(Number.isInteger(repeat.days) && repeat.days >= 1) ? 'اكتب عدد أيام صحيحًا.' : '',
-    endsOn: repeats && endsOn && endsOn < startOfDay(startsAt) ? 'تاريخ النهاية قبل تاريخ البدء.' : '',
+    startsAt: !repeats && startsAt <= now ? 'هذا الموعد مضى. اختر وقتًا قادمًا.' : '',
+    weekdays: repeats && repeatType === 'selected_weekdays' && weekdays.length === 0 ? 'اختر يومًا واحدًا على الأقل.' : '',
+    interval:
+      repeats && repeatType === 'every_n_days' && !draft.intervalDays ? 'يجب أن يكون عدد الأيام رقمًا أكبر من صفر.' : '',
+    endDate: !repeats || endType !== 'on_date'
+      ? ''
+      : !endDate
+        ? 'اختر تاريخ الانتهاء.'
+        : endDate < startOfDay(startsAt)
+          ? 'يجب أن يكون تاريخ الانتهاء بعد تاريخ البداية.'
+          : '',
+    maxOccurrences:
+      repeats && endType === 'after_occurrences' && !draft.maxOccurrences ? 'اكتب عدد مرات أكبر من صفر.' : '',
+    snooze: draft.snoozeMinutes > 0 ? '' : 'اكتب عدد دقائق أكبر من صفر.',
   };
+  const ruleIncomplete = Boolean(errors.weekdays || errors.interval || errors.endDate || errors.maxOccurrences);
+  const hasFuture = !ruleIncomplete && !!nextOccurrence(draft, now);
   const shown = (field: keyof typeof errors) => (submitted ? errors[field] : '');
-  const repeatIncomplete = Boolean(errors.weekdays || errors.customDays);
+
+  const persist = async () => {
+    setSaving(true);
+    try {
+      const { delivery } = await store.save(draft, reminder?.id);
+      router.back();
+      showToast(deliveryToast(delivery, reminder ? 'تم تحديث التذكير بنجاح.' : 'تم إنشاء التذكير وسيصلك في موعده.'));
+    } catch {
+      // Stay on the form so nothing the member typed is lost.
+      setSaving(false);
+      showToast({ tone: 'danger', message: 'تعذر حفظ التذكير على هاتفك. حاول مرة أخرى.' });
+    }
+  };
 
   const onSave = () => {
     setSubmitted(true);
-    if (Object.values(errors).some(Boolean)) return;
-    save({
-      id: reminder?.id,
-      title: title.trim(),
-      message: message.trim(),
-      startsAt,
-      repeat,
-      endsOn: repeats ? endsOn : undefined,
-      enabled: reminder?.enabled ?? true,
-    });
-    router.back();
+    if (Object.values(errors).some(Boolean) || !hasFuture) return;
+    // Permission is asked for on the first save, after explaining why, not at app launch.
+    if (shouldExplainPermission(store)) setExplainPermission(true);
+    else persist();
   };
 
   // Changing the date keeps the chosen time, and vice versa.
-  const setDate = (day: Date) =>
-    setStartsAt(new Date(day.getFullYear(), day.getMonth(), day.getDate(), startsAt.getHours(), startsAt.getMinutes()));
-  const setTime = (time: Date) =>
-    setStartsAt(new Date(startsAt.getFullYear(), startsAt.getMonth(), startsAt.getDate(), time.getHours(), time.getMinutes()));
+  const setDate = (day: Date) => setStartsAt(atTime(day, toTimeKey(startsAt)));
+  const setTime = (time: Date) => setStartsAt(atTime(startsAt, toTimeKey(time)));
   const toggleWeekday = (day: number) =>
     setWeekdays((current) => (current.includes(day) ? current.filter((d) => d !== day) : [...current, day]));
 
   const inputStyle = [styles.input, { backgroundColor: theme.surface, borderColor: theme.border, color: theme.text }];
+  const summaryText = ruleIncomplete ? 'أكمل إعدادات التكرار لعرض الملخص.' : scheduleSummary(draft, now);
 
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        <View style={styles.privacy}>
-          <Icon name="lock" size={16} />
-          <ThemedText type="caption" themeColor="textSecondary">
-            خاص بحسابك فقط، ولا يراه أحد غيرك.
-          </ThemedText>
-        </View>
-
         <Field label="عنوان التذكير" required error={shown('title')}>
           <TextInput
             value={title}
             onChangeText={setTitle}
-            placeholder="مثال: متابعة موافقة إدارة المسجد"
+            placeholder="مثال: التواصل مع المسؤول"
             placeholderTextColor={theme.textSecondary}
+            accessibilityLabel="عنوان التذكير"
+            maxLength={120}
             style={inputStyle}
           />
         </Field>
 
-        <Field label="نص رسالة التنبيه">
+        <Field label="رسالة التذكير">
           <TextInput
             value={message}
             onChangeText={setMessage}
-            placeholder="التفاصيل التي ستظهر لك عند التنبيه"
+            placeholder="اكتب ما تريد أن تتذكره"
             placeholderTextColor={theme.textSecondary}
+            accessibilityLabel="رسالة التذكير"
             multiline
+            maxLength={500}
             style={[inputStyle, styles.multiline]}
           />
         </Field>
 
         <View style={styles.pair}>
-          <Field label="تاريخ البدء" required error={shown('startsAt')} style={styles.grow}>
-            <PickerButton icon="calendar_today" text={formatLongDate(startsAt)} onPress={() => openPicker('date', startsAt, setDate)} />
+          <Field label="التاريخ" required error={shown('startsAt')} style={styles.grow}>
+            <PickerButton
+              icon="calendar_today"
+              text={formatLongDate(startsAt)}
+              accessibilityLabel={`التاريخ: ${formatLongDate(startsAt)}`}
+              onPress={() => openPicker('date', startsAt, setDate)}
+            />
           </Field>
-          <Field label="وقت التنبيه" required style={styles.grow}>
-            <PickerButton icon="schedule" text={formatTime(startsAt)} onPress={() => openPicker('time', startsAt, setTime)} />
+          <Field label="الوقت" required style={styles.grow}>
+            <PickerButton
+              icon="schedule"
+              text={formatTime(startsAt)}
+              accessibilityLabel={`الوقت: ${formatTime(startsAt)}`}
+              onPress={() => openPicker('time', startsAt, setTime)}
+            />
           </Field>
         </View>
 
-        <View style={[styles.section, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-          <View style={styles.switchRow}>
-            <View style={styles.grow}>
-              <ThemedText type="label">تكرار التنبيه</ThemedText>
-              <ThemedText type="caption" themeColor="textSecondary">
-                يتكرر التذكير تلقائيًا حسب النمط الذي تختاره.
-              </ThemedText>
-            </View>
-            <Switch
-              accessibilityLabel="تكرار التنبيه"
-              value={repeats}
-              onValueChange={setRepeats}
-              trackColor={{ true: theme.primary, false: theme.border }}
-              thumbColor={theme.surface}
-            />
-          </View>
+        <Section>
+          <SwitchRow label="تكرار التذكير" value={repeats} onChange={setRepeats} />
 
           {repeats && (
             <>
-              <Field label="نمط التكرار">
-                <View style={styles.chips}>
-                  {MODES.map((option) => (
-                    <ChoiceChip
-                      key={option.value}
-                      label={option.label}
-                      selected={mode === option.value}
-                      onPress={() => setMode(option.value)}
-                    />
-                  ))}
-                </View>
-              </Field>
+              <View style={styles.chips}>
+                {REPEAT_OPTIONS.map((option) => (
+                  <ChoiceChip
+                    key={option.value}
+                    label={option.label}
+                    selected={repeatType === option.value}
+                    onPress={() => setRepeatType(option.value)}
+                  />
+                ))}
+              </View>
 
-              {mode === 'weekly' && (
-                <Field label="أيام الأسبوع" error={shown('weekdays')}>
+              {repeatType === 'weekly' && (
+                <Hint text={`يتكرر كل أسبوع يوم ${weekdayName(startsAt)}، حسب التاريخ الذي اخترته.`} />
+              )}
+
+              {repeatType === 'selected_weekdays' && (
+                <Field label="أيام التذكير" error={shown('weekdays')}>
                   <View style={styles.chips}>
-                    {WEEKDAY_CHIPS.map((label, day) => (
+                    {WEEK_ORDER.map((day) => (
                       <ChoiceChip
-                        key={label}
-                        label={label}
+                        key={day}
+                        label={WEEKDAYS[day]}
                         selected={weekdays.includes(day)}
                         onPress={() => toggleWeekday(day)}
                       />
@@ -197,41 +260,98 @@ export function ReminderForm({ reminder }: { reminder?: Reminder }) {
                 </Field>
               )}
 
-              {mode === 'custom' && (
-                <Field label="عدد الأيام بين كل تنبيه والذي يليه" error={shown('customDays')}>
-                  <TextInput
-                    value={customDays}
-                    onChangeText={setCustomDays}
-                    keyboardType="number-pad"
-                    maxLength={3}
-                    style={[inputStyle, styles.daysInput]}
-                  />
+              {repeatType === 'every_n_days' && (
+                <Field label="كرّر كل" error={shown('interval')}>
+                  <NumberInput value={intervalText} onChange={setIntervalText} suffix="يوم" label="عدد الأيام" />
+                  <View style={styles.chips}>
+                    {INTERVAL_PRESETS.map((preset) => (
+                      <ChoiceChip
+                        key={preset.days}
+                        label={preset.label}
+                        selected={draft.intervalDays === preset.days}
+                        onPress={() => setIntervalText(String(preset.days))}
+                      />
+                    ))}
+                  </View>
                 </Field>
               )}
 
-              <Field label="تاريخ نهاية التكرار (اختياري)" error={shown('endsOn')}>
-                <PickerButton
-                  icon="event"
-                  text={endsOn ? formatLongDate(endsOn) : 'بدون تاريخ نهاية'}
-                  muted={!endsOn}
-                  onPress={() => openPicker('date', endsOn ?? startsAt, setEndsOn)}
-                  onClear={endsOn && (() => setEndsOn(undefined))}
-                />
+              <View style={[styles.divider, { backgroundColor: theme.border }]} />
+
+              <Field label="نهاية التكرار" error={shown('endDate') || shown('maxOccurrences')}>
+                <View style={styles.chips}>
+                  {END_OPTIONS.map((option) => (
+                    <ChoiceChip
+                      key={option.value}
+                      label={option.label}
+                      selected={endType === option.value}
+                      onPress={() => setEndType(option.value)}
+                    />
+                  ))}
+                </View>
+                {endType === 'on_date' && (
+                  <PickerButton
+                    icon="event"
+                    text={endDate ? formatLongDate(endDate) : 'اختر تاريخ الانتهاء'}
+                    muted={!endDate}
+                    accessibilityLabel={endDate ? `تاريخ الانتهاء: ${formatLongDate(endDate)}` : 'اختر تاريخ الانتهاء'}
+                    onPress={() => openPicker('date', endDate ?? addDays(startsAt, 30), (day) => setEndDate(startOfDay(day)))}
+                  />
+                )}
+                {endType === 'after_occurrences' && (
+                  <NumberInput value={maxText} onChange={setMaxText} suffix="مرات" label="عدد المرات" />
+                )}
               </Field>
             </>
           )}
-        </View>
+        </Section>
 
-        <View style={[styles.summary, { backgroundColor: theme.primarySoft }]}>
-          <Icon name="auto_awesome" color={theme.primary} />
-          <View style={styles.grow}>
-            <ThemedText type="label" themeColor="primary">
-              ملخص جدول التذكير
-            </ThemedText>
-            <ThemedText type="small" themeColor="primary">
-              {repeatIncomplete ? 'أكمل إعدادات التكرار لعرض الملخص.' : scheduleSummary({ startsAt, repeat, endsOn })}
-            </ThemedText>
-          </View>
+        <Section>
+          <SwitchRow
+            label="التنبيه في الوقت المحدد بدقة"
+            description="قد يحتاج هذا الخيار إلى صلاحية إضافية على بعض أجهزة Android."
+            value={exactTiming}
+            onChange={setExactTiming}
+          />
+          {exactTiming && Platform.OS === 'android' && (
+            <Button
+              label="منح صلاحية التنبيه الدقيق"
+              icon="alarm_on"
+              variant="tonal"
+              compact
+              onPress={openExactAlarmSettings}
+            />
+          )}
+        </Section>
+
+        <Section>
+          <Field label="عند اختيار ذكّرني لاحقًا" error={shown('snooze')}>
+            <View style={styles.chips}>
+              {SNOOZE_OPTIONS.map((option) => (
+                <ChoiceChip
+                  key={option.value}
+                  label={option.label}
+                  selected={snoozeChoice === option.value}
+                  onPress={() => setSnoozeChoice(option.value)}
+                />
+              ))}
+            </View>
+            {snoozeChoice === 'custom' && (
+              <NumberInput value={snoozeText} onChange={setSnoozeText} suffix="دقيقة" label="عدد الدقائق" />
+            )}
+          </Field>
+        </Section>
+
+        <View
+          accessibilityLiveRegion="polite"
+          style={[styles.summary, { backgroundColor: hasFuture || ruleIncomplete ? theme.primarySoft : theme.warningSoft }]}>
+          <Icon name="event_upcoming" color={hasFuture || ruleIncomplete ? theme.primary : theme.warning} />
+          <ThemedText
+            type="small"
+            themeColor={hasFuture || ruleIncomplete ? 'primary' : 'warning'}
+            style={styles.grow}>
+            {summaryText}
+          </ThemedText>
         </View>
       </ScrollView>
 
@@ -240,9 +360,78 @@ export function ReminderForm({ reminder }: { reminder?: Reminder }) {
           styles.footer,
           { backgroundColor: theme.surface, borderTopColor: theme.border, paddingBottom: insets.bottom + Spacing.three },
         ]}>
-        <Button label="حفظ التذكير" icon="check" onPress={onSave} style={styles.grow} />
-        <Button label="إلغاء" variant="tonal" onPress={() => router.back()} />
+        <Button label="حفظ التذكير" icon="check" disabled={saving} onPress={onSave} style={styles.grow} />
+        <Button label="إلغاء" variant="tonal" disabled={saving} onPress={() => router.back()} />
       </View>
+
+      <PermissionPrompt
+        visible={explainPermission}
+        onAllow={async () => {
+          setExplainPermission(false);
+          await store.requestPermission().catch(() => undefined);
+          persist();
+        }}
+        onLater={() => {
+          setExplainPermission(false);
+          store.dismissPermissionPrompt();
+          persist();
+        }}
+      />
+    </View>
+  );
+}
+
+function Section({ children }: { children: ReactNode }) {
+  const theme = useTheme();
+  return <View style={[styles.section, { backgroundColor: theme.surface, borderColor: theme.border }]}>{children}</View>;
+}
+
+function SwitchRow({
+  label,
+  description,
+  value,
+  onChange,
+}: {
+  label: string;
+  description?: string;
+  value: boolean;
+  onChange: (value: boolean) => void;
+}) {
+  const theme = useTheme();
+
+  return (
+    <Pressable
+      accessibilityRole="switch"
+      accessibilityLabel={label}
+      accessibilityState={{ checked: value }}
+      onPress={() => onChange(!value)}
+      style={styles.switchRow}>
+      <View style={styles.grow}>
+        <ThemedText type="label">{label}</ThemedText>
+        {description && (
+          <ThemedText type="caption" themeColor="textSecondary">
+            {description}
+          </ThemedText>
+        )}
+      </View>
+      <Switch
+        importantForAccessibility="no-hide-descendants"
+        value={value}
+        onValueChange={onChange}
+        trackColor={{ true: theme.primary, false: theme.border }}
+        thumbColor={theme.surface}
+      />
+    </Pressable>
+  );
+}
+
+function Hint({ text }: { text: string }) {
+  return (
+    <View style={styles.hint}>
+      <Icon name="info" size={16} />
+      <ThemedText type="caption" themeColor="textSecondary" style={styles.grow}>
+        {text}
+      </ThemedText>
     </View>
   );
 }
@@ -260,6 +449,8 @@ function Field({
   style?: StyleProp<ViewStyle>;
   children: ReactNode;
 }) {
+  const theme = useTheme();
+
   return (
     <View style={[styles.field, style]}>
       <ThemedText type="label">
@@ -268,10 +459,45 @@ function Field({
       </ThemedText>
       {children}
       {!!error && (
-        <ThemedText type="caption" themeColor="danger">
-          {error}
-        </ThemedText>
+        <View style={styles.error}>
+          <Icon name="error" size={14} color={theme.danger} />
+          <ThemedText type="caption" themeColor="danger" style={styles.grow}>
+            {error}
+          </ThemedText>
+        </View>
       )}
+    </View>
+  );
+}
+
+function NumberInput({
+  value,
+  onChange,
+  suffix,
+  label,
+}: {
+  value: string;
+  onChange: (text: string) => void;
+  suffix: string;
+  label: string;
+}) {
+  const theme = useTheme();
+
+  return (
+    <View style={styles.numberRow}>
+      <TextInput
+        value={value}
+        onChangeText={onChange}
+        keyboardType="number-pad"
+        maxLength={4}
+        accessibilityLabel={label}
+        style={[
+          styles.input,
+          styles.numberInput,
+          { backgroundColor: theme.surface, borderColor: theme.border, color: theme.text },
+        ]}
+      />
+      <ThemedText themeColor="textSecondary">{suffix}</ThemedText>
     </View>
   );
 }
@@ -280,31 +506,27 @@ function PickerButton({
   icon,
   text,
   muted,
+  accessibilityLabel,
   onPress,
-  onClear,
 }: {
   icon: IconName;
   text: string;
   muted?: boolean;
+  accessibilityLabel: string;
   onPress: () => void;
-  onClear?: () => void;
 }) {
   const theme = useTheme();
 
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
       onPress={onPress}
       style={[styles.input, styles.pickerButton, { backgroundColor: theme.surface, borderColor: theme.border }]}>
       <Icon name={icon} size={18} color={theme.primary} />
       <ThemedText themeColor={muted ? 'textSecondary' : 'text'} numberOfLines={1} style={styles.grow}>
         {text}
       </ThemedText>
-      {onClear && (
-        <Pressable accessibilityRole="button" accessibilityLabel="إزالة التاريخ" hitSlop={Spacing.two} onPress={onClear}>
-          <Icon name="close" size={18} />
-        </Pressable>
-      )}
     </Pressable>
   );
 }
@@ -314,8 +536,8 @@ function ChoiceChip({ label, selected, onPress }: { label: string; selected: boo
 
   return (
     <Pressable
-      accessibilityRole="button"
-      accessibilityState={{ selected }}
+      accessibilityRole="radio"
+      accessibilityState={{ selected, checked: selected }}
       onPress={onPress}
       style={[
         styles.choice,
@@ -324,6 +546,7 @@ function ChoiceChip({ label, selected, onPress }: { label: string; selected: boo
           borderColor: selected ? theme.primary : theme.border,
         },
       ]}>
+      {selected && <Icon name="check" size={16} color={theme.onPrimary} />}
       <ThemedText type="small" style={{ color: selected ? theme.onPrimary : theme.text }}>
         {label}
       </ThemedText>
@@ -338,11 +561,6 @@ const styles = StyleSheet.create({
   content: {
     padding: Spacing.three,
     gap: Spacing.three + Spacing.one,
-  },
-  privacy: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.one + Spacing.half,
   },
   field: {
     gap: Spacing.one + Spacing.half,
@@ -382,6 +600,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.three - Spacing.one,
+    minHeight: 44,
+  },
+  divider: {
+    height: StyleSheet.hairlineWidth,
+  },
+  hint: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.one + Spacing.half,
   },
   chips: {
     flexDirection: 'row',
@@ -389,15 +616,27 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
   },
   choice: {
-    minHeight: 40,
-    justifyContent: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.one,
+    minHeight: 44,
     paddingHorizontal: Spacing.three - Spacing.one,
     borderWidth: 1,
     borderRadius: Radius.pill,
   },
-  daysInput: {
-    width: 96,
+  numberRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
+  },
+  numberInput: {
+    width: 88,
     textAlign: 'center',
+  },
+  error: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.one,
   },
   summary: {
     flexDirection: 'row',
