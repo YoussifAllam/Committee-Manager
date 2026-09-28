@@ -7,11 +7,10 @@
     "icon": "./assets/images/icon.png",
     "scheme": "meetingsmanager",
     "userInterfaceStyle": "light",
-    "ios": {},
     "android": {
       "package": "com.meetingsmanager.app",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#1E3A8A",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
@@ -28,7 +27,7 @@
         {
           "backgroundColor": "#1E3A8A",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "imageWidth": 108
         }
       ],
       [
