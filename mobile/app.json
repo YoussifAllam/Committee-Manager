@@ -7,9 +7,7 @@
     "icon": "./assets/images/icon.png",
     "scheme": "meetingsmanager",
     "userInterfaceStyle": "light",
-    "ios": {
-      "icon": "./assets/expo.icon"
-    },
+    "ios": {},
     "android": {
       "package": "com.meetingsmanager.app",
       "adaptiveIcon": {
