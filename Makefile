@@ -4,10 +4,10 @@
 MOBILE := mobile
 
 .DEFAULT_GOAL := help
-.PHONY: help install start usb tunnel android apk apk-local lint typecheck doctor check clean
+.PHONY: help install start usb tunnel android apk apk-local apk-install lint typecheck doctor check clean
 
 help: ## List available targets
-	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*## "}; {printf "  \033[36m%-10s\033[0m %s\n", $$1, $$2}'
+	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*## "}; {printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
 
 # Mobile (Expo)
 
@@ -33,11 +33,17 @@ apk: ## Build an installable Android APK on Expo's servers (EAS; needs a free Ex
 # Local builds use JDK 17 and the Android SDK installed under ~/Android.
 ANDROID_ENV := JAVA_HOME=$(HOME)/Android/jdk-17 ANDROID_HOME=$(HOME)/Android/Sdk
 APK := $(MOBILE)/android/app/build/outputs/apk/release/app-release.apk
+BUILDS := $(MOBILE)/builds
+VERSION := $(shell cat $(MOBILE)/VERSION)
 
-apk-local: ## Build a release APK on this computer (64-bit ARM phones); copy it to the phone and install it
+apk-local: ## Build a release APK on this computer (64-bit ARM phones) into mobile/builds/, e.g. himma-v1.0.0-2026-09-28_21-30.apk
 	cd $(MOBILE) && npx expo prebuild --platform android --no-install
 	cd $(MOBILE)/android && $(ANDROID_ENV) ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a
-	@echo "APK ready: $(APK)"
+	@mkdir -p $(BUILDS)
+	@out=$(BUILDS)/himma-v$(VERSION)-$$(date +%Y-%m-%d_%H-%M).apk && cp $(APK) $$out && echo "APK ready: $$out"
+
+apk-install: ## Install the newest APK from mobile/builds/ on the phone plugged in over USB
+	adb install -r "$$(ls -t $(BUILDS)/*.apk | head -1)"
 
 lint: ## Lint the mobile app
 	cd $(MOBILE) && npm run lint

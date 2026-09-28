@@ -42,3 +42,9 @@ example
 /ios
 /android
 
+
+# local APK builds (make apk-local)
+/builds
+
+# Gradle output of local native modules
+/modules/*/android/build

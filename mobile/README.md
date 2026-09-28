@@ -37,8 +37,13 @@ access the device without root — see `/etc/udev/rules.d/51-android.rules`.
 
 ### Build an APK
 
+The app version is in [`VERSION`](VERSION) (e.g. `1.0.1`); raise it before a build you hand out. `app.config.js`
+reads it and derives Android's `versionCode` from it (1.2.3 → 10203), since Android won't install a build over one
+with a higher code.
+
 - **On this computer:** `make apk-local` generates `android/` (`expo prebuild`) and builds a release APK for 64-bit
-  ARM phones at `android/app/build/outputs/apk/release/app-release.apk`. Copy it to the phone and install it. It
+  ARM phones into `builds/`, named with the version and build time (`himma-v1.0.0-2026-09-28_21-30.apk`). Copy it to
+  the phone and install it, or plug the phone in and run `make apk-install` for the newest one. It
   needs JDK 17 in `~/Android/jdk-17` and the Android SDK in `~/Android/Sdk`, plus about 6 GB of free RAM. The first
   build downloads dependencies and takes a while; later builds take minutes. The APK is signed with the debug key,
   which is fine for testing but not for the Play Store.
