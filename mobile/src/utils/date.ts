@@ -17,10 +17,11 @@ export function formatLongDate(date: Date) {
   return `${weekdayName(date)}، ${formatShortDate(date)}${year}`;
 }
 
+/** "09:00 صباحًا"، "08:30 مساءً". */
 export function formatTime(date: Date) {
   const hours = date.getHours();
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-  return `${hours % 12 || 12}:${minutes} ${hours < 12 ? 'صباحًا' : 'مساءً'}`;
+  const clock = [hours % 12 || 12, date.getMinutes()].map((part) => String(part).padStart(2, '0')).join(':');
+  return `${clock} ${hours < 12 ? 'صباحًا' : 'مساءً'}`;
 }
 
 export function addDays(date: Date, days: number) {
@@ -38,6 +39,14 @@ export function daysFromToday(date: Date) {
 
 export const formatDays = (count: number) =>
   pluralize(count, { one: 'يوم واحد', two: 'يومين', few: 'أيام', many: 'يومًا' });
+
+/** "10 دقائق"، "30 دقيقة"، "ساعة"، "ساعتين"; whole hours read as hours. */
+export function formatMinutes(minutes: number) {
+  if (minutes >= 60 && minutes % 60 === 0) {
+    return pluralize(minutes / 60, { one: 'ساعة', two: 'ساعتين', few: 'ساعات', many: 'ساعة' });
+  }
+  return pluralize(minutes, { one: 'دقيقة', two: 'دقيقتين', few: 'دقائق', many: 'دقيقة' });
+}
 
 /** Relative day: اليوم، غدًا، أمس، بعد 3 أيام، منذ 5 أيام. */
 export function formatCountdown(date: Date) {
