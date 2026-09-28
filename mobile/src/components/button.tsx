@@ -44,7 +44,7 @@ export function Button({
       // Compact buttons are drawn 36 high; the slop keeps the touch area at 44.
       hitSlop={compact ? { top: Spacing.one, bottom: Spacing.one } : undefined}
       onPress={onPress}
-      android_ripple={{ color: variant === 'primary' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(30, 58, 138, 0.12)' }}
+      android_ripple={{ color: variant === 'primary' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(14, 124, 115, 0.12)' }}
       style={[styles.button, compact && styles.compact, { backgroundColor }, disabled && styles.disabled, style]}>
       {icon && <Icon name={icon} size={compact ? 18 : 20} color={color} />}
       <ThemedText type="label" style={{ color }}>

@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
     direction: 'rtl',
     justifyContent: 'center',
     padding: Spacing.four,
-    backgroundColor: 'rgba(20, 26, 46, 0.4)',
+    backgroundColor: 'rgba(17, 32, 29, 0.4)',
   },
   dialog: {
     gap: Spacing.two,

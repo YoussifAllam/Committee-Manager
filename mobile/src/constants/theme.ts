@@ -1,26 +1,26 @@
 /**
- * Design tokens. The app is light-only: navy is the brand color, and semantic tones are reserved
+ * Design tokens. The app is light-only: teal (the app icon's green) is the brand color, and semantic tones are reserved
  * for things that need attention.
  */
 
 export const Colors = {
-  text: '#141A2E',
-  textSecondary: '#5A6479',
-  background: '#F4F6FA',
+  text: '#11201D',
+  textSecondary: '#55645F',
+  background: '#F3F7F6',
   surface: '#FFFFFF',
-  surfaceMuted: '#F1F4F9',
-  border: '#E3E8F0',
-  primary: '#1E3A8A',
-  primarySoft: '#E8EEFB',
+  surfaceMuted: '#EDF4F2',
+  border: '#DDE8E4',
+  primary: '#0E7C73',
+  primarySoft: '#E8F5F2',
   onPrimary: '#FFFFFF',
-  headerGradient: ['#E2E9FB', '#F4F6FA'],
-  brandGradient: ['#1E3A8A', '#0F1A47'],
+  headerGradient: ['#D6EEE8', '#F3F7F6'],
+  brandGradient: ['#128A80', '#0B4F4A'],
   info: '#2A5BD7',
   infoSoft: '#E8EFFD',
   violet: '#6D3FC0',
   violetSoft: '#F0EAFB',
-  success: '#1E7F4F',
-  successSoft: '#E4F4EA',
+  success: '#347A27',
+  successSoft: '#E8F4E2',
   warning: '#A15C0B',
   warningSoft: '#FDF1DE',
   danger: '#C8312B',

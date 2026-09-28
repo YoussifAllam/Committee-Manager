@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
   },
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(20, 26, 46, 0.4)',
+    backgroundColor: 'rgba(17, 32, 29, 0.4)',
   },
   sheet: {
     borderTopLeftRadius: Radius.lg,
@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 4,
     borderRadius: Radius.pill,
-    backgroundColor: '#D8DEE9',
+    backgroundColor: '#D3E2DD',
     marginBottom: Spacing.three,
   },
   sheetTitle: {
