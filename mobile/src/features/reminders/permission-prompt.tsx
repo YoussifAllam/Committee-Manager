@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/button';
-import { Icon } from '@/components/icon';
+import { Icon, type IconName } from '@/components/icon';
 import { Sheet } from '@/components/sheet';
 import { ThemedText } from '@/components/themed-text';
 import { useToast } from '@/components/toast';
@@ -11,31 +11,64 @@ import { openNotificationSettings } from '@/features/reminders/device-settings';
 import { useReminders } from '@/features/reminders/reminders-store';
 import { useTheme } from '@/hooks/use-theme';
 
-type PermissionPromptProps = {
+type PromptProps = {
   visible: boolean;
-  /** Continue to the OS permission dialog. */
+  /** Continue to the OS dialog or settings screen. */
   onAllow: () => void;
   onLater: () => void;
 };
 
 /** Explains why notifications are needed, right before the OS permission dialog appears. */
-export function PermissionPrompt({ visible, onAllow, onLater }: PermissionPromptProps) {
+export function PermissionPrompt(props: PromptProps) {
+  return (
+    <PromptSheet
+      {...props}
+      icon="notifications_active"
+      title="فعّل التنبيهات"
+      description="يحتاج هِمّة إلى إذن الإشعارات حتى يذكّرك في الموعد الذي تحدده، حتى عندما يكون التطبيق مغلقًا."
+      allowLabel="السماح بالتنبيهات"
+    />
+  );
+}
+
+/** Android has no dialog for exact alarms, so this explains the setting before opening it. */
+export function ExactAlarmPrompt(props: PromptProps) {
+  return (
+    <PromptSheet
+      {...props}
+      icon="alarm_on"
+      title="اسمح بضبط المنبهات والتذكيرات"
+      description="حتى يصلك كل تذكير في دقيقته بالضبط، فعّل «السماح بضبط المنبهات والتذكيرات» لهِمّة في الصفحة التالية."
+      allowLabel="فتح الإعدادات"
+    />
+  );
+}
+
+function PromptSheet({
+  visible,
+  onAllow,
+  onLater,
+  icon,
+  title,
+  description,
+  allowLabel,
+}: PromptProps & { icon: IconName; title: string; description: string; allowLabel: string }) {
   const theme = useTheme();
 
   return (
     <Sheet visible={visible} onClose={onLater}>
       <View style={styles.body}>
         <View style={[styles.illustration, { backgroundColor: theme.primarySoft }]}>
-          <Icon name="notifications_active" size={36} color={theme.primary} />
+          <Icon name={icon} size={36} color={theme.primary} />
         </View>
         <ThemedText type="title" style={styles.center}>
-          فعّل التنبيهات
+          {title}
         </ThemedText>
         <ThemedText themeColor="textSecondary" style={styles.center}>
-          يحتاج هِمّة إلى إذن الإشعارات حتى يذكّرك في الموعد الذي تحدده، حتى عندما يكون التطبيق مغلقًا.
+          {description}
         </ThemedText>
       </View>
-      <Button label="السماح بالتنبيهات" icon="notifications_active" onPress={onAllow} />
+      <Button label={allowLabel} icon={icon} onPress={onAllow} />
       <Button label="ليس الآن" variant="plain" onPress={onLater} />
     </Sheet>
   );

@@ -10,6 +10,7 @@ import { openBatterySettings, openExactAlarmSettings, openNotificationSettings }
 import { useEnableNotifications } from '@/features/reminders/permission-prompt';
 import { useReminders } from '@/features/reminders/reminders-store';
 import { useTheme } from '@/hooks/use-theme';
+import { canScheduleExactAlarms } from '@/modules/exact-alarm';
 
 const HELP = [
   'تأكد من السماح بالإشعارات.',
@@ -24,6 +25,8 @@ export default function ReminderSettingsScreen() {
   const { permission } = useReminders();
   const enable = useEnableNotifications();
   const isAndroid = Platform.OS === 'android';
+  // Read on every render: the screen re-renders when the app returns from the system settings.
+  const exactAlarms = canScheduleExactAlarms();
 
   const status: { icon: IconName; color: ThemeColor; background: ThemeColor; title: string; text: string } =
     permission.status === 'granted'
@@ -53,17 +56,7 @@ export default function ReminderSettingsScreen() {
   return (
     <ScrollView style={{ backgroundColor: theme.background }} contentContainerStyle={styles.content}>
       <Section title="التنبيهات">
-        <View style={styles.statusRow}>
-          <View style={[styles.statusIcon, { backgroundColor: theme[status.background] }]}>
-            <Icon name={status.icon} size={22} color={theme[status.color]} />
-          </View>
-          <View style={styles.grow}>
-            <ThemedText type="label">{status.title}</ThemedText>
-            <ThemedText type="small" themeColor="textSecondary">
-              {status.text}
-            </ThemedText>
-          </View>
-        </View>
+        <StatusRow {...status} />
         {permission.status === 'granted' && (
           <Button label="فتح إعدادات الإشعارات" icon="settings" variant="tonal" onPress={openNotificationSettings} />
         )}
@@ -78,11 +71,26 @@ export default function ReminderSettingsScreen() {
 
       {isAndroid && (
         <Section title="التنبيه في الوقت المحدد بدقة">
-          <ThemedText type="small" themeColor="textSecondary">
-            يصل التنبيه عادةً في موعده أو بعده بدقائق قليلة توفيرًا للبطارية. ليصل على الدقيقة نفسها، اسمح لهِمّة
-            بضبط المنبهات والتذكيرات.
-          </ThemedText>
-          <Button label="فتح إعدادات المنبهات والتذكيرات" icon="alarm_on" variant="tonal" onPress={openExactAlarmSettings} />
+          {exactAlarms ? (
+            <StatusRow
+              icon="alarm_on"
+              color="success"
+              background="successSoft"
+              title="ضبط المنبهات والتذكيرات مسموح"
+              text="تصلك التذكيرات في دقيقتها بالضبط."
+            />
+          ) : (
+            <>
+              <StatusRow
+                icon="alarm_off"
+                color="warning"
+                background="warningSoft"
+                title="ضبط المنبهات والتذكيرات غير مسموح"
+                text="قد يتأخر التنبيه دقائق قليلة توفيرًا للبطارية. ليصل على الدقيقة نفسها، اسمح لهِمّة بضبط المنبهات والتذكيرات."
+              />
+              <Button label="فتح إعدادات المنبهات والتذكيرات" icon="alarm_on" onPress={openExactAlarmSettings} />
+            </>
+          )}
         </Section>
       )}
 
@@ -112,6 +120,36 @@ export default function ReminderSettingsScreen() {
 
       {enable.prompt}
     </ScrollView>
+  );
+}
+
+function StatusRow({
+  icon,
+  color,
+  background,
+  title,
+  text,
+}: {
+  icon: IconName;
+  color: ThemeColor;
+  background: ThemeColor;
+  title: string;
+  text: string;
+}) {
+  const theme = useTheme();
+
+  return (
+    <View style={styles.statusRow}>
+      <View style={[styles.statusIcon, { backgroundColor: theme[background] }]}>
+        <Icon name={icon} size={22} color={theme[color]} />
+      </View>
+      <View style={styles.grow}>
+        <ThemedText type="label">{title}</ThemedText>
+        <ThemedText type="small" themeColor="textSecondary">
+          {text}
+        </ThemedText>
+      </View>
+    </View>
   );
 }
 

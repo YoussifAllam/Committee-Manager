@@ -10,6 +10,7 @@ import { ToastProvider } from '@/components/toast';
 import { Fonts } from '@/constants/theme';
 import { SelectedCommitteeProvider } from '@/features/committees/selected-committee';
 import { RemindersProvider } from '@/features/reminders/reminders-store';
+import { StartupPermissions } from '@/features/reminders/startup-permissions';
 import { useTheme } from '@/hooks/use-theme';
 
 SplashScreen.preventAutoHideAsync();
@@ -75,6 +76,8 @@ export default function RootLayout() {
                 <Stack.Screen name="notifications" options={{ title: 'الإشعارات' }} />
                 <Stack.Screen name="profile" options={{ title: 'الملف الشخصي' }} />
               </Stack>
+              {/* After the splash, so the permission dialogs don't appear over it. */}
+              {!showSplash && <StartupPermissions />}
             </ToastProvider>
             {showSplash && <SplashOverlay />}
           </View>

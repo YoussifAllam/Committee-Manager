@@ -306,6 +306,15 @@ export function syncAll() {
   });
 }
 
+const STARTUP_KEY = 'startup-permissions-asked';
+
+/** True only the first time it's called after install, so the first-launch permission requests run once. */
+export async function claimStartupPermissions() {
+  if (await repository.getMeta(STARTUP_KEY)) return false;
+  await repository.setMeta(STARTUP_KEY, new Date().toISOString());
+  return true;
+}
+
 const HANDLED_KEY = 'handled-notification-events';
 
 /**

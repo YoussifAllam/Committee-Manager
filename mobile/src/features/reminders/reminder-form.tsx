@@ -24,6 +24,7 @@ import {
 import { shouldExplainPermission, useReminders } from '@/features/reminders/reminders-store';
 import type { EndType, Reminder, ReminderDraft, RepeatType } from '@/features/reminders/types';
 import { useTheme } from '@/hooks/use-theme';
+import { canScheduleExactAlarms } from '@/modules/exact-alarm';
 import { addDays, formatLongDate, formatTime, startOfDay, weekdayName, WEEKDAYS } from '@/utils/date';
 
 type Repeating = Exclude<RepeatType, 'none'>;
@@ -319,7 +320,7 @@ export function ReminderForm({ reminder }: { reminder?: Reminder }) {
             value={exactTiming}
             onChange={setExactTiming}
           />
-          {exactTiming && Platform.OS === 'android' && (
+          {exactTiming && Platform.OS === 'android' && !canScheduleExactAlarms() && (
             <Button
               label="منح صلاحية التنبيه الدقيق"
               icon="alarm_on"

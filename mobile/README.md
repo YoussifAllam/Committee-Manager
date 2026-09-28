@@ -59,6 +59,11 @@ involved, and alerts arrive while the app is closed. The code lives in `src/feat
 - `background-task.ts` — handles the notification buttons "تم" / "ذكّرني لاحقًا" while the app is closed.
   It's registered from `index.ts`, the app entry, before anything renders.
 
+On the first launch after install the app asks for the notification permission straight away, then (Android 12+)
+explains and opens the "Alarms & reminders" setting if it isn't allowed yet (`startup-permissions.tsx`). Whether exact
+alarms are allowed comes from a small local native module, `modules/exact-alarm`, since Expo has no API for it; it
+answers `true` in Expo Go and on the web, where it isn't available.
+
 Open-ended daily and weekly rules use native repeating triggers. Other rules keep a window of the next 8
 occurrences, which is topped up every time the app opens or resumes. expo-notifications re-registers alarms after a
 reboot or an app update.
