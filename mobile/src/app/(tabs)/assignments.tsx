@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { PageHeader } from '@/components/page-header';
 import { SegmentedControl } from '@/components/segmented-control';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
@@ -34,13 +35,9 @@ export default function AssignmentsScreen() {
       contentContainerStyle={[styles.content, { paddingTop: insets.top + Spacing.three }]}
       ListHeaderComponent={
         <View style={styles.header}>
-          <View>
-            <ThemedText type="display">التكليفات</ThemedText>
-            <ThemedText themeColor="textSecondary">
-              متابعة إنجاز مهامك الناتجة عن الاجتماعات وتحديث حالاتها.
-            </ThemedText>
-          </View>
-          <CommitteePicker />
+          <PageHeader title="التكليفات" subtitle="متابعة إنجاز مهامك الناتجة عن الاجتماعات وتحديث حالاتها.">
+            <CommitteePicker />
+          </PageHeader>
           <SegmentedControl
             segments={[
               { value: 'open', label: 'الحالية', count: open.length },

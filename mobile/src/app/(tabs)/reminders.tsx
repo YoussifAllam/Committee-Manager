@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '@/components/button';
 import { Chip } from '@/components/chip';
 import { Icon } from '@/components/icon';
+import { PageHeader } from '@/components/page-header';
 import { ThemedText } from '@/components/themed-text';
 import { Radius, Spacing } from '@/constants/theme';
 import { ReminderCard } from '@/features/reminders/reminder-card';
@@ -26,18 +27,12 @@ export default function RemindersScreen() {
       style={{ backgroundColor: theme.background }}
       contentContainerStyle={[styles.content, { paddingTop: insets.top + Spacing.three }]}
       ListHeaderComponent={
-        <View style={styles.header}>
-          <View>
-            <View style={styles.titleRow}>
-              <ThemedText type="display">فكّرني</ThemedText>
-              <Chip icon="lock" label="خاص بك" />
-            </View>
-            <ThemedText themeColor="textSecondary">
-              تذكيرات شخصية لمتابعة مهامك واجتماعاتك ومواعيدك، ولا يراها أحد غيرك.
-            </ThemedText>
-          </View>
-          <Button label="إضافة تذكير" icon="add" onPress={() => router.push('/reminders/new')} />
-        </View>
+        <PageHeader
+          title="فكّرني — التذكيرات الشخصية"
+          subtitle="جدولة تنبيهات دورية وشخصية لتنظيم مهامك واجتماعاتك ومواعيدك الخاصة."
+          badge={<Chip tone="info" icon="lock" label="خاص بك" />}>
+          <Button label="إضافة تذكير جديد" icon="add" onPress={() => router.push('/reminders/new')} />
+        </PageHeader>
       }
       ListEmptyComponent={
         <View style={styles.empty}>
@@ -59,15 +54,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.three,
     paddingBottom: Spacing.four,
     gap: Spacing.three - Spacing.one,
-  },
-  header: {
-    gap: Spacing.three,
-    marginBottom: Spacing.one,
-  },
-  titleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
   },
   empty: {
     alignItems: 'center',

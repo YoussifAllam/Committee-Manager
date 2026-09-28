@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { PageHeader } from '@/components/page-header';
 import { SegmentedControl } from '@/components/segmented-control';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
@@ -30,10 +31,10 @@ export default function MeetingsScreen() {
       contentContainerStyle={[styles.content, { paddingTop: insets.top + Spacing.three }]}
       ListHeaderComponent={
         <View style={styles.header}>
-          <View>
-            <ThemedText type="display">الاجتماعات</ThemedText>
-            <ThemedText themeColor="textSecondary">مواعيد اجتماعات كل لجانك ونتائج ما انعقد منها.</ThemedText>
-          </View>
+          <PageHeader
+            title="الاجتماعات"
+            subtitle="متابعة مواعيد اجتماعات كل لجانك، وجداول أعمالها، ونتائج ما انعقد منها."
+          />
           <SegmentedControl
             segments={[
               { value: 'upcoming', label: 'القادمة', count: upcoming.length },
