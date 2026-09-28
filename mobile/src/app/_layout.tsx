@@ -8,6 +8,7 @@ import { StyleSheet, View } from 'react-native';
 import { SplashOverlay } from '@/components/splash-overlay';
 import { Fonts } from '@/constants/theme';
 import { SelectedCommitteeProvider } from '@/features/committees/selected-committee';
+import { RemindersProvider } from '@/features/reminders/reminders-store';
 import { useTheme } from '@/hooks/use-theme';
 
 SplashScreen.preventAutoHideAsync();
@@ -58,15 +59,19 @@ export default function RootLayout() {
       {/* The app is Arabic-only. Builds force RTL natively (expo-localization plugin in app.json);
           this also mirrors layout in Expo Go, which ignores that plugin. */}
       <SelectedCommitteeProvider>
-        <View style={styles.rtl}>
-          <Stack screenOptions={{ headerShadowVisible: false }}>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="meetings/[id]" options={{ title: 'الاجتماع' }} />
-            <Stack.Screen name="meetings/new" options={{ title: 'اجتماع جديد', presentation: 'modal' }} />
-            <Stack.Screen name="assignments/[id]" options={{ title: 'التكليف' }} />
-          </Stack>
-          {showSplash && <SplashOverlay />}
-        </View>
+        <RemindersProvider>
+          <View style={styles.rtl}>
+            <Stack screenOptions={{ headerShadowVisible: false }}>
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="meetings/[id]" options={{ title: 'الاجتماع' }} />
+              <Stack.Screen name="meetings/new" options={{ title: 'اجتماع جديد', presentation: 'modal' }} />
+              <Stack.Screen name="assignments/[id]" options={{ title: 'التكليف' }} />
+              <Stack.Screen name="reminders/new" options={{ title: 'تذكير جديد', presentation: 'modal' }} />
+              <Stack.Screen name="reminders/[id]" options={{ title: 'تعديل التذكير', presentation: 'modal' }} />
+            </Stack>
+            {showSplash && <SplashOverlay />}
+          </View>
+        </RemindersProvider>
       </SelectedCommitteeProvider>
     </ThemeProvider>
   );

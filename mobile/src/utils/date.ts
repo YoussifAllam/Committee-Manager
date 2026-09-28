@@ -5,7 +5,7 @@ const MONTHS = [
   'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
   'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر',
 ];
-const WEEKDAYS = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+export const WEEKDAYS = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
 
 export const monthName = (date: Date) => MONTHS[date.getMonth()];
 export const weekdayName = (date: Date) => WEEKDAYS[date.getDay()];
@@ -23,10 +23,17 @@ export function formatTime(date: Date) {
   return `${hours % 12 || 12}:${minutes} ${hours < 12 ? 'صباحًا' : 'مساءً'}`;
 }
 
+export function addDays(date: Date, days: number) {
+  const result = new Date(date);
+  result.setDate(result.getDate() + days);
+  return result;
+}
+
+export const startOfDay = (date: Date) => new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
 /** Whole calendar days from today to `date`; negative when it's in the past. */
 export function daysFromToday(date: Date) {
-  const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
-  return Math.round((startOfDay(date) - startOfDay(new Date())) / 86_400_000);
+  return Math.round((startOfDay(date).getTime() - startOfDay(new Date()).getTime()) / 86_400_000);
 }
 
 export const formatDays = (count: number) =>

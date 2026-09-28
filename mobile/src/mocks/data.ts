@@ -2,6 +2,7 @@
 import type { Assignment } from '@/features/assignments/types';
 import type { Committee } from '@/features/committees/types';
 import type { Meeting } from '@/features/meetings/types';
+import type { Reminder } from '@/features/reminders/types';
 
 function daysFromNow(days: number, hours = 9, minutes = 0) {
   const date = new Date();
@@ -198,5 +199,33 @@ export const assignments: Assignment[] = [
     dueDate: daysFromNow(8),
     updatedAt: hoursAgo(96),
     meetingTitle: 'خطة صيانة المسجد',
+  },
+];
+
+// The member's private reminders.
+export const reminders: Reminder[] = [
+  {
+    id: '1',
+    title: 'متابعة موافقة إدارة المسجد',
+    message: 'الاتصال بالأستاذ سعد والتأكد من توقيع الخطاب الرسمي للقاعة.',
+    startsAt: daysFromNow(-10, 10, 0),
+    repeat: { kind: 'weekly', weekdays: [4] },
+    enabled: true,
+  },
+  {
+    id: '2',
+    title: 'مراجعة كشف المستفيدين',
+    message: 'التدقيق النهائي في أرقام المستفيدين قبل رفع الكشف للجنة.',
+    startsAt: daysFromNow(-3, 20, 0),
+    repeat: { kind: 'interval', days: 14 },
+    enabled: true,
+  },
+  {
+    id: '3',
+    title: 'تجهيز عرض الميزانية',
+    message: 'تجهيز شرائح العرض قبل اجتماع مراجعة الميزانية الربع سنوية.',
+    startsAt: daysFromNow(9, 18, 0),
+    repeat: { kind: 'none' },
+    enabled: false,
   },
 ];
