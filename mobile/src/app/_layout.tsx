@@ -2,14 +2,17 @@ import { Tajawal_400Regular, Tajawal_500Medium, Tajawal_700Bold, useFonts } from
 import { DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
+import { SplashOverlay } from '@/components/splash-overlay';
 import { Fonts } from '@/constants/theme';
 import { SelectedCommitteeProvider } from '@/features/committees/selected-committee';
 import { useTheme } from '@/hooks/use-theme';
 
 SplashScreen.preventAutoHideAsync();
+
+const SPLASH_MS = 1500;
 
 export default function RootLayout() {
   const theme = useTheme();
@@ -19,9 +22,13 @@ export default function RootLayout() {
     Tajawal_700Bold,
   });
   const ready = fontsLoaded || fontError;
+  const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
-    if (ready) SplashScreen.hideAsync();
+    if (!ready) return;
+    SplashScreen.hideAsync();
+    const timer = setTimeout(() => setShowSplash(false), SPLASH_MS);
+    return () => clearTimeout(timer);
   }, [ready]);
 
   if (!ready) return null;
@@ -47,7 +54,7 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={navigationTheme}>
-      <StatusBar style="dark" />
+      <StatusBar style={showSplash ? 'light' : 'dark'} />
       {/* The app is Arabic-only. Builds force RTL natively (expo-localization plugin in app.json);
           this also mirrors layout in Expo Go, which ignores that plugin. */}
       <SelectedCommitteeProvider>
@@ -58,6 +65,7 @@ export default function RootLayout() {
             <Stack.Screen name="meetings/new" options={{ title: 'اجتماع جديد', presentation: 'modal' }} />
             <Stack.Screen name="assignments/[id]" options={{ title: 'التكليف' }} />
           </Stack>
+          {showSplash && <SplashOverlay />}
         </View>
       </SelectedCommitteeProvider>
     </ThemeProvider>

@@ -14,6 +14,7 @@ export const Colors = {
   primarySoft: '#E8EEFB',
   onPrimary: '#FFFFFF',
   headerGradient: ['#E2E9FB', '#F4F6FA'],
+  brandGradient: ['#1E3A8A', '#0F1A47'],
   info: '#2A5BD7',
   infoSoft: '#E8EFFD',
   violet: '#6D3FC0',
