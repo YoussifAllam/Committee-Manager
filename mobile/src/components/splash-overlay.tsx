@@ -1,27 +1,31 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { StyleSheet, View } from 'react-native';
-import Animated, { FadeInDown, FadeOut } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeInDown, FadeOut } from 'react-native-reanimated';
 
 import { ThemedText } from '@/components/themed-text';
 import { Fonts, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 /**
- * Brand screen shown over the app right after launch. The native splash screen can only show
- * an image, so the name and slogan live here as real text; the root layout removes it after a moment.
+ * Brand screen shown over the app right after launch; the root layout removes it after a moment.
+ * Android's own launch screen is left blank in the same color (app.json), so this is the only one seen.
  */
 export function SplashOverlay() {
   const theme = useTheme();
 
   return (
-    <Animated.View exiting={FadeOut.duration(400)} style={StyleSheet.absoluteFill}>
-      <LinearGradient colors={theme.brandGradient} style={styles.container}>
-        <Animated.View entering={FadeInDown.duration(500)} style={styles.content}>
-          <ThemedText style={[styles.name, { color: theme.onPrimary }]}>هِمّة</ThemedText>
-          <View style={styles.rule} />
-          <ThemedText style={[styles.slogan, { color: theme.onPrimary }]}>كل تكليف يصنع أثرًا</ThemedText>
-        </Animated.View>
-      </LinearGradient>
+    <Animated.View
+      exiting={FadeOut.duration(400)}
+      style={[StyleSheet.absoluteFill, { backgroundColor: theme.brandGradient[0] }]}>
+      <Animated.View entering={FadeIn.duration(300)} style={StyleSheet.absoluteFill}>
+        <LinearGradient colors={theme.brandGradient} style={styles.container}>
+          <Animated.View entering={FadeInDown.duration(500)} style={styles.content}>
+            <ThemedText style={[styles.name, { color: theme.onPrimary }]}>هِمّة</ThemedText>
+            <View style={styles.rule} />
+            <ThemedText style={[styles.slogan, { color: theme.onPrimary }]}>كل تكليف يصنع أثرًا</ThemedText>
+          </Animated.View>
+        </LinearGradient>
+      </Animated.View>
     </Animated.View>
   );
 }
