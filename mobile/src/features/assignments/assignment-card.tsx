@@ -3,28 +3,26 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/button';
 import { Card } from '@/components/card';
-import { Chip } from '@/components/chip';
-import { Icon, type IconName } from '@/components/icon';
+import { Icon } from '@/components/icon';
 import { ThemedText } from '@/components/themed-text';
-import { Spacing, type Tone } from '@/constants/theme';
+import { Fonts, Radius, Spacing, type ThemeColor } from '@/constants/theme';
 import { isDone, isOverdue } from '@/features/assignments/selectors';
 import type { Assignment, AssignmentPriority, AssignmentStatus } from '@/features/assignments/types';
 import { useTheme } from '@/hooks/use-theme';
 import { daysFromToday, formatDays, formatShortDate, formatTimeAgo } from '@/utils/date';
 
-type ChipSpec = { label: string; icon: IconName; tone: Tone };
-
-const STATUS: Record<AssignmentStatus, ChipSpec> = {
-  not_started: { label: 'لم يبدأ', icon: 'radio_button_unchecked', tone: 'neutral' },
-  in_progress: { label: 'جاري التنفيذ', icon: 'progress_activity', tone: 'info' },
-  awaiting_review: { label: 'بانتظار المراجعة', icon: 'hourglass_top', tone: 'violet' },
-  done: { label: 'مكتمل', icon: 'check_circle', tone: 'success' },
+// Status is a small colored dot and plain text; the only strong color on the card is red overdue text.
+const STATUS: Record<AssignmentStatus, { label: string; dot: ThemeColor }> = {
+  not_started: { label: 'لم يبدأ', dot: 'textSecondary' },
+  in_progress: { label: 'جاري التنفيذ', dot: 'info' },
+  awaiting_review: { label: 'بانتظار المراجعة', dot: 'violet' },
+  done: { label: 'مكتمل', dot: 'success' },
 };
 
-// Normal priority gets no chip, so only the exceptions draw attention.
-const PRIORITY: Record<Exclude<AssignmentPriority, 'normal'>, ChipSpec> = {
-  important: { label: 'مهم', icon: 'priority_high', tone: 'warning' },
-  urgent: { label: 'عاجل', icon: 'local_fire_department', tone: 'danger' },
+// Normal priority shows nothing, so only the exceptions are mentioned.
+const PRIORITY: Record<Exclude<AssignmentPriority, 'normal'>, string> = {
+  important: 'مهم',
+  urgent: 'عاجل',
 };
 
 export function AssignmentCard({ assignment }: { assignment: Assignment }) {
@@ -32,6 +30,7 @@ export function AssignmentCard({ assignment }: { assignment: Assignment }) {
   const { dueDate, priority } = assignment;
   const overdue = isOverdue(assignment);
   const dueColor = overdue ? theme.danger : theme.textSecondary;
+  const status = STATUS[assignment.status];
 
   return (
     <Pressable
@@ -40,16 +39,21 @@ export function AssignmentCard({ assignment }: { assignment: Assignment }) {
       onPress={() => router.push(`/assignments/${assignment.id}`)}
       style={({ pressed }) => pressed && styles.pressed}>
       <Card style={styles.card}>
-        {overdue && <View style={[styles.overdueEdge, { backgroundColor: theme.danger }]} />}
-
-        <View style={styles.chips}>
-          <Chip {...STATUS[assignment.status]} />
-          {priority !== 'normal' && <Chip {...PRIORITY[priority]} />}
+        <View style={styles.row}>
+          <View style={[styles.dot, { backgroundColor: theme[status.dot] }]} />
+          <ThemedText type="caption" themeColor="textSecondary">
+            {status.label}
+          </ThemedText>
+          {priority !== 'normal' && (
+            <ThemedText type="caption" style={styles.priority}>
+              · {PRIORITY[priority]}
+            </ThemedText>
+          )}
         </View>
 
         <View style={styles.body}>
           <ThemedText type="heading">{assignment.title}</ThemedText>
-          <ThemedText type="small" themeColor="textSecondary" numberOfLines={2}>
+          <ThemedText type="small" themeColor="textSecondary" numberOfLines={1}>
             {assignment.description}
           </ThemedText>
         </View>
@@ -92,17 +96,13 @@ const styles = StyleSheet.create({
   card: {
     gap: Spacing.three - Spacing.one,
   },
-  overdueEdge: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    start: 0,
-    width: 4,
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: Radius.pill,
   },
-  chips: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing.two,
+  priority: {
+    fontFamily: Fonts.bold,
   },
   body: {
     gap: Spacing.one,

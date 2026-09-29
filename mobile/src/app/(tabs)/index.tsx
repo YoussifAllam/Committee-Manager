@@ -3,13 +3,12 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { Chip } from '@/components/chip';
 import { Icon } from '@/components/icon';
-import { PageHeader } from '@/components/page-header';
+import { ScreenTitle } from '@/components/page-header';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { AssignmentCard } from '@/features/assignments/assignment-card';
 import { AssignmentsSummary } from '@/features/assignments/assignments-summary';
 import { needingAttention, summarize } from '@/features/assignments/selectors';
-import { CommitteePicker } from '@/features/committees/committee-picker';
 import { useSelectedCommittee } from '@/features/committees/selected-committee';
 import { MeetingSummaryCard } from '@/features/meetings/meeting-summary-card';
 import { NextMeetingCard } from '@/features/meetings/next-meeting-card';
@@ -24,7 +23,7 @@ export default function HomeScreen() {
   const upcoming = upcomingMeetings(meetings);
   const nextOverall = upcoming[0];
   const nextInSelected = upcoming.find((meeting) => meeting.committee.id === selectedCommittee.id);
-  // Assignments follow the committee picked in the header; meetings above also show the soonest overall.
+  // Assignments follow the committee picked in the app bar; meetings above also show the soonest overall.
   const committeeAssignments = assignments.filter((assignment) => assignment.committee.id === selectedCommittee.id);
   const attention = needingAttention(committeeAssignments);
   // Skip the second card when the soonest meeting overall already belongs to the selected committee.
@@ -32,12 +31,10 @@ export default function HomeScreen() {
 
   return (
     <ScrollView style={{ backgroundColor: theme.background }} contentContainerStyle={styles.content}>
-      <PageHeader
+      <ScreenTitle
         title={`${greeting()}، ${currentUser.name.split(' ')[0]}`}
-        subtitle="نظرة سريعة على اجتماعاتك وتكليفاتك في اللجنة المختارة."
-        badge={<Chip tone="info" icon="shield_person" label={selectedCommittee.role} />}>
-        <CommitteePicker />
-      </PageHeader>
+        badge={<Chip tone="info" icon="shield_person" label={selectedCommittee.role} />}
+      />
 
       <View style={styles.section}>
         <View style={styles.sectionHeader}>

@@ -14,6 +14,16 @@ type PageHeaderProps = {
   children?: ReactNode;
 };
 
+/** A tab's title on one line, without a card, for tabs whose main control lives in the app bar. */
+export function ScreenTitle({ title, badge }: { title: string; badge?: ReactNode }) {
+  return (
+    <View style={styles.screenTitle}>
+      <ThemedText style={styles.title}>{title}</ThemedText>
+      {badge}
+    </View>
+  );
+}
+
 /** The card at the top of each tab: title, subtitle and the page's main control. */
 export function PageHeader({ title, subtitle, badge, children }: PageHeaderProps) {
   return (
@@ -39,6 +49,11 @@ const styles = StyleSheet.create({
   titleRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
+    gap: Spacing.two,
+  },
+  screenTitle: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: Spacing.two,
   },
   title: {

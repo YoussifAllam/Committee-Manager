@@ -1,20 +1,19 @@
 import { useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 
-import { PageHeader } from '@/components/page-header';
+import { ScreenTitle } from '@/components/page-header';
 import { SegmentedControl } from '@/components/segmented-control';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { AssignmentCard } from '@/features/assignments/assignment-card';
 import { completedAssignments, openAssignments } from '@/features/assignments/selectors';
-import { CommitteePicker } from '@/features/committees/committee-picker';
 import { useSelectedCommittee } from '@/features/committees/selected-committee';
 import { useTheme } from '@/hooks/use-theme';
 import { assignments } from '@/mocks/data';
 
 type Status = 'open' | 'completed';
 
-/** The member's assignments in the selected committee (the same committee chosen on the home screen). */
+/** The member's assignments in the committee selected in the app bar. */
 export default function AssignmentsScreen() {
   const theme = useTheme();
   const { committee } = useSelectedCommittee();
@@ -33,9 +32,7 @@ export default function AssignmentsScreen() {
       contentContainerStyle={styles.content}
       ListHeaderComponent={
         <View style={styles.header}>
-          <PageHeader title="التكليفات" subtitle="متابعة إنجاز مهامك الناتجة عن الاجتماعات وتحديث حالاتها.">
-            <CommitteePicker />
-          </PageHeader>
+          <ScreenTitle title="التكليفات" />
           <SegmentedControl
             segments={[
               { value: 'open', label: 'الحالية', count: open.length },

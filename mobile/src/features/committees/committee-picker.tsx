@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FlatList, Modal, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { FlatList, Modal, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon } from '@/components/icon';
@@ -8,13 +8,12 @@ import { Radius, Spacing } from '@/constants/theme';
 import { useSelectedCommittee } from '@/features/committees/selected-committee';
 import { useTheme } from '@/hooks/use-theme';
 
-/** Trigger that opens a bottom sheet to switch the app-wide selected committee. */
-export function CommitteePicker({ style }: { style?: StyleProp<ViewStyle> }) {
+/** Pill in the app bar that opens a bottom sheet to switch the app-wide selected committee. */
+export function CommitteePicker() {
   const theme = useTheme();
   const { committees, committee: selected, select: onSelect } = useSelectedCommittee();
   const insets = useSafeAreaInsets();
   const [open, setOpen] = useState(false);
-  const outlined = { backgroundColor: theme.surface, borderColor: theme.border };
 
   return (
     <>
@@ -22,12 +21,13 @@ export function CommitteePicker({ style }: { style?: StyleProp<ViewStyle> }) {
         accessibilityRole="button"
         accessibilityLabel={`اللجنة الحالية: ${selected.name}. اضغط للتبديل بين لجانك`}
         onPress={() => setOpen(true)}
-        style={[styles.trigger, outlined, style]}>
-        <Icon name="groups" size={18} color={theme.primary} />
-        <ThemedText type="label" numberOfLines={1} style={styles.grow}>
+        hitSlop={4}
+        style={[styles.trigger, { backgroundColor: theme.primarySoft }]}>
+        <Icon name="groups" size={16} color={theme.primary} />
+        <ThemedText type="label" themeColor="primary" numberOfLines={1} style={styles.name}>
           {selected.name}
         </ThemedText>
-        {committees.length > 1 && <Icon name="expand_more" size={18} />}
+        {committees.length > 1 && <Icon name="expand_more" size={18} color={theme.primary} />}
       </Pressable>
 
       <Modal visible={open} animationType="slide" transparent onRequestClose={() => setOpen(false)}>
@@ -84,14 +84,15 @@ const styles = StyleSheet.create({
   trigger: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.two,
-    height: 40,
-    paddingHorizontal: Spacing.three - Spacing.one,
+    gap: Spacing.one,
+    maxWidth: '100%',
+    height: 36,
+    paddingHorizontal: Spacing.two + Spacing.half,
     borderRadius: Radius.pill,
-    borderWidth: 1,
   },
-  grow: {
-    flex: 1,
+  // Shrinks (with an ellipsis) instead of growing: the pill sizes to the committee's name.
+  name: {
+    flexShrink: 1,
   },
   backdrop: {
     flex: 1,
