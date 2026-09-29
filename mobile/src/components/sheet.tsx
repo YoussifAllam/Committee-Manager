@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Modal, Pressable, StyleSheet, View } from 'react-native';
+import { KeyboardAvoidingView, Modal, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -21,14 +21,15 @@ export function Sheet({ visible, onClose, title, children }: SheetProps) {
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       {/* A modal is its own root, outside the app's RTL view, so it sets the direction again. */}
-      <View style={styles.root}>
+      {/* Keeps a text field in the sheet above the keyboard. */}
+      <KeyboardAvoidingView behavior="padding" style={styles.root}>
         <Pressable accessibilityLabel="إغلاق" style={styles.backdrop} onPress={onClose} />
         <View style={[styles.sheet, { backgroundColor: theme.surface, paddingBottom: insets.bottom + Spacing.three }]}>
           <View style={[styles.handle, { backgroundColor: theme.border }]} />
           {title && <ThemedText type="heading">{title}</ThemedText>}
           {children}
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }

@@ -27,6 +27,8 @@ export default function AssignmentDetailsScreen() {
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { assignments } = useAssignments();
+  // The comment box hides while an action asks for details, so there's only one thing to type into.
+  const [askingDetails, setAskingDetails] = useState(false);
   const assignment = assignments.find((a) => a.id === id);
 
   if (!assignment) {
@@ -70,26 +72,7 @@ export default function AssignmentDetailsScreen() {
         </Section>
 
         <Section title="تحديث سريع لحالة التكليف">
-          <AssignmentActions assignment={assignment} />
-        </Section>
-
-        <Section title="سجل التحديثات">
-          {assignment.history.map((event) => (
-            <View
-              key={event.id}
-              style={[styles.box, styles.event, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-              <View style={[styles.dot, { backgroundColor: theme.primary }]} />
-              <View style={styles.grow}>
-                <ThemedText type="label">{event.text}</ThemedText>
-                <ThemedText type="caption" themeColor="textSecondary">
-                  بواسطة: {event.by}
-                </ThemedText>
-              </View>
-              <ThemedText type="caption" themeColor="textSecondary">
-                {formatShortDate(event.at)}
-              </ThemedText>
-            </View>
-          ))}
+          <AssignmentActions assignment={assignment} onAskingChange={setAskingDetails} />
         </Section>
 
         <Section title={`التعليقات والمناقشات (${assignment.comments.length})`} icon="chat_bubble">
@@ -115,9 +98,28 @@ export default function AssignmentDetailsScreen() {
             </View>
           ))}
         </Section>
+
+        <Section title="سجل التحديثات">
+          {assignment.history.map((event) => (
+            <View
+              key={event.id}
+              style={[styles.box, styles.event, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+              <View style={[styles.dot, { backgroundColor: theme.primary }]} />
+              <View style={styles.grow}>
+                <ThemedText type="label">{event.text}</ThemedText>
+                <ThemedText type="caption" themeColor="textSecondary">
+                  بواسطة: {event.by}
+                </ThemedText>
+              </View>
+              <ThemedText type="caption" themeColor="textSecondary">
+                {formatShortDate(event.at)}
+              </ThemedText>
+            </View>
+          ))}
+        </Section>
       </ScrollView>
 
-      <CommentBox assignment={assignment} bottomInset={insets.bottom} />
+      {!askingDetails && <CommentBox assignment={assignment} bottomInset={insets.bottom} />}
     </KeyboardAvoidingView>
   );
 }
