@@ -175,7 +175,18 @@ export function ReminderForm({ reminder }: { reminder?: Reminder }) {
   };
 
   // Changing the date keeps the chosen time, and vice versa.
-  const setDate = (day: Date) => setStartsAt(atTime(day, toTimeKey(startsAt)));
+  const setDate = (day: Date) => {
+    // While the chosen weekdays are just the start date's day, they follow the date.
+    if (weekdays.length === 1 && weekdays[0] === startsAt.getDay()) setWeekdays([day.getDay()]);
+    setStartsAt(atTime(day, toTimeKey(startsAt)));
+  };
+  const chooseRepeatType = (type: Repeating) => {
+    // "في أيام محددة" starts with the start date's day selected.
+    if (type === 'selected_weekdays' && !weekdays.includes(startsAt.getDay())) {
+      setWeekdays([...weekdays, startsAt.getDay()]);
+    }
+    setRepeatType(type);
+  };
   const setTime = (time: Date) => setStartsAt(atTime(startsAt, toTimeKey(time)));
   const toggleWeekday = (day: number) =>
     setWeekdays((current) => (current.includes(day) ? current.filter((d) => d !== day) : [...current, day]));
@@ -241,7 +252,7 @@ export function ReminderForm({ reminder }: { reminder?: Reminder }) {
                     key={option.value}
                     label={option.label}
                     selected={repeatType === option.value}
-                    onPress={() => setRepeatType(option.value)}
+                    onPress={() => chooseRepeatType(option.value)}
                   />
                 ))}
               </View>
