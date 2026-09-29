@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { Card } from '@/components/card';
 import { ThemedText } from '@/components/themed-text';
-import { Fonts, Spacing } from '@/constants/theme';
+import { Spacing } from '@/constants/theme';
 
 type PageHeaderProps = {
   title: string;
@@ -18,7 +18,7 @@ type PageHeaderProps = {
 export function ScreenTitle({ title, badge }: { title: string; badge?: ReactNode }) {
   return (
     <View style={styles.screenTitle}>
-      <ThemedText style={styles.title}>{title}</ThemedText>
+      <ThemedText type="page" style={styles.title}>{title}</ThemedText>
       {badge}
     </View>
   );
@@ -30,7 +30,7 @@ export function PageHeader({ title, subtitle, badge, children }: PageHeaderProps
     <Card>
       <View style={styles.text}>
         <View style={styles.titleRow}>
-          <ThemedText style={styles.title}>{title}</ThemedText>
+          <ThemedText type="page" style={styles.title}>{title}</ThemedText>
           {badge}
         </View>
         <ThemedText type="small" themeColor="textSecondary">
@@ -58,8 +58,5 @@ const styles = StyleSheet.create({
   },
   title: {
     flex: 1,
-    fontFamily: Fonts.bold,
-    fontSize: 22,
-    lineHeight: 34,
   },
 });

@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
-import { useState, type ReactNode } from 'react';
-import { ActivityIndicator, FlatList, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { useEffect, useState, type ReactNode } from 'react';
+import { FlatList, Platform, Pressable, StyleSheet, View } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 
 import { Button } from '@/components/button';
 import { Icon, type IconName } from '@/components/icon';
@@ -99,7 +100,7 @@ export default function RemindersScreen() {
       }
       ListEmptyComponent={
         loading ? (
-          <ActivityIndicator color={theme.primary} style={styles.loading} />
+          <LoadingCards />
         ) : reminders.length === 0 ? (
           <EmptyState />
         ) : (
@@ -190,6 +191,33 @@ function Notice({
   );
 }
 
+/** Card-shaped placeholders that pulse while the local database is read. */
+function LoadingCards() {
+  const theme = useTheme();
+  const opacity = useSharedValue(1);
+  const pulse = useAnimatedStyle(() => ({ opacity: opacity.get() }));
+
+  useEffect(() => {
+    opacity.set(withRepeat(withTiming(0.45, { duration: 700 }), -1, true));
+  }, [opacity]);
+
+  const bar = (width: `${number}%`, height = 12) => (
+    <View style={[styles.bar, { width, height, backgroundColor: theme.surfaceMuted }]} />
+  );
+
+  return (
+    <Animated.View accessibilityLabel="جارٍ التحميل" style={[styles.loadingCards, pulse]}>
+      {[0, 1, 2].map((i) => (
+        <View key={i} style={[styles.skeleton, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+          {bar('55%', 16)}
+          {bar('80%')}
+          {bar('40%')}
+        </View>
+      ))}
+    </Animated.View>
+  );
+}
+
 function EmptyState() {
   const theme = useTheme();
 
@@ -241,8 +269,17 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: Spacing.two,
   },
-  loading: {
-    marginTop: Spacing.five,
+  loadingCards: {
+    gap: Spacing.three - Spacing.one,
+  },
+  skeleton: {
+    gap: Spacing.two + Spacing.half,
+    padding: Spacing.three,
+    borderRadius: Radius.lg,
+    borderWidth: 1,
+  },
+  bar: {
+    borderRadius: Radius.pill,
   },
   center: {
     textAlign: 'center',

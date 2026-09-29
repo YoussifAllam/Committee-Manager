@@ -1,3 +1,4 @@
+import * as Haptics from 'expo-haptics';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
@@ -24,7 +25,10 @@ export function SegmentedControl<T extends string>({ segments, value, onChange }
             key={segment.value}
             accessibilityRole="tab"
             accessibilityState={{ selected }}
-            onPress={() => onChange(segment.value)}
+            onPress={() => {
+              if (segment.value !== value) Haptics.selectionAsync().catch(() => {});
+              onChange(segment.value);
+            }}
             style={[styles.segment, selected && [styles.selected, { backgroundColor: theme.surface }]]}>
             <ThemedText type="label" themeColor={selected ? 'primary' : 'textSecondary'}>
               {segment.label}

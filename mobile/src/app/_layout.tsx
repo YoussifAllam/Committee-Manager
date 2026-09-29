@@ -3,7 +3,8 @@ import { DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { SplashOverlay } from '@/components/splash-overlay';
 import { ToastProvider } from '@/components/toast';
@@ -62,7 +63,7 @@ export default function RootLayout() {
           this also mirrors layout in Expo Go, which ignores that plugin. */}
       <SelectedCommitteeProvider>
         <RemindersProvider>
-          <View style={styles.rtl}>
+          <GestureHandlerRootView style={styles.rtl}>
             <ToastProvider>
               <Stack screenOptions={{ headerShadowVisible: false }}>
                 <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
@@ -80,7 +81,7 @@ export default function RootLayout() {
               {!showSplash && <StartupPermissions />}
             </ToastProvider>
             {showSplash && <SplashOverlay />}
-          </View>
+          </GestureHandlerRootView>
         </RemindersProvider>
       </SelectedCommitteeProvider>
     </ThemeProvider>

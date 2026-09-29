@@ -1,6 +1,7 @@
+import * as Haptics from 'expo-haptics';
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
-import Animated, { FadeInDown, FadeOut } from 'react-native-reanimated';
+import { Pressable, StyleSheet } from 'react-native';
+import Animated, { FadeInDown, FadeOut, ZoomIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon, type IconName } from '@/components/icon';
@@ -21,6 +22,13 @@ const ICONS: Record<ToastTone, IconName> = {
   warning: 'warning',
   danger: 'error',
   info: 'info',
+};
+
+// Every action's result shows a toast, so its vibration gives each action feedback. Info doesn't vibrate.
+const HAPTICS: Partial<Record<ToastTone, Haptics.NotificationFeedbackType>> = {
+  success: Haptics.NotificationFeedbackType.Success,
+  warning: Haptics.NotificationFeedbackType.Warning,
+  danger: Haptics.NotificationFeedbackType.Error,
 };
 
 // Clears the tab bar on tab screens; on other screens it simply floats a little higher.
@@ -45,6 +53,8 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const show = (options: ToastOptions) => {
     counter.current += 1;
     setToast({ ...options, id: counter.current });
+    const feedback = HAPTICS[options.tone ?? 'success'];
+    if (feedback) Haptics.notificationAsync(feedback).catch(() => {});
   };
 
   const tone = toast?.tone ?? 'success';
@@ -63,9 +73,11 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             styles.toast,
             { bottom: insets.bottom + BOTTOM_OFFSET, backgroundColor: theme.surface, borderColor: theme.border },
           ]}>
-          <View style={[styles.icon, { backgroundColor: theme[`${tone}Soft`] }]}>
+          <Animated.View
+            entering={ZoomIn.springify().delay(120)}
+            style={[styles.icon, { backgroundColor: theme[`${tone}Soft`] }]}>
             <Icon name={ICONS[tone]} size={18} color={theme[tone]} />
-          </View>
+          </Animated.View>
           <ThemedText type="small" style={styles.message}>
             {toast.message}
           </ThemedText>

@@ -15,11 +15,12 @@ export function ThemedText({ style, type = 'default', themeColor, ...rest }: The
 }
 
 // Arabic script needs roughly 1.6× line height so marks above and below letters aren't clipped.
+// Scale: page titles 24, section titles 18, card titles 16, body 15, details 13.
 const styles = StyleSheet.create({
-  display: {
+  page: {
     fontFamily: Fonts.bold,
-    fontSize: 26,
-    lineHeight: 40,
+    fontSize: 24,
+    lineHeight: 38,
   },
   title: {
     fontFamily: Fonts.bold,
@@ -48,7 +49,7 @@ const styles = StyleSheet.create({
   },
   caption: {
     fontFamily: Fonts.regular,
-    fontSize: 12,
-    lineHeight: 19,
+    fontSize: 13,
+    lineHeight: 21,
   },
 });
