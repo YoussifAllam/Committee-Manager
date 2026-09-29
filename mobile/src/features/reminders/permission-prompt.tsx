@@ -18,15 +18,18 @@ type PromptProps = {
   onLater: () => void;
 };
 
-/** Explains why notifications are needed, right before the OS permission dialog appears. */
-export function PermissionPrompt(props: PromptProps) {
+/**
+ * Explains why notifications are needed, right before the OS permission dialog appears.
+ * With `settings`, the OS won't ask again, so the button opens the phone's notification settings instead.
+ */
+export function PermissionPrompt({ settings, ...props }: PromptProps & { settings?: boolean }) {
   return (
     <PromptSheet
       {...props}
       icon="notifications_active"
       title="فعّل التنبيهات"
       description="يحتاج هِمّة إلى إذن الإشعارات حتى يذكّرك في الموعد الذي تحدده، حتى عندما يكون التطبيق مغلقًا."
-      allowLabel="السماح بالتنبيهات"
+      allowLabel={settings ? 'فتح إعدادات الإشعارات' : 'السماح بالتنبيهات'}
     />
   );
 }

@@ -1,7 +1,7 @@
 import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { router } from 'expo-router';
 import { useState, type ReactNode } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, Switch, TextInput, View, type StyleProp, type ViewStyle } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Switch, TextInput, View, type StyleProp, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/button';
@@ -10,7 +10,6 @@ import { ThemedText } from '@/components/themed-text';
 import { useToast } from '@/components/toast';
 import { Fonts, Radius, Spacing } from '@/constants/theme';
 import { deliveryToast } from '@/features/reminders/delivery-toast';
-import { openExactAlarmSettings } from '@/features/reminders/device-settings';
 import { PermissionPrompt } from '@/features/reminders/permission-prompt';
 import {
   atTime,
@@ -24,7 +23,6 @@ import {
 import { shouldExplainPermission, useReminders } from '@/features/reminders/reminders-store';
 import type { EndType, Reminder, ReminderDraft, RepeatType } from '@/features/reminders/types';
 import { useTheme } from '@/hooks/use-theme';
-import { canScheduleExactAlarms } from '@/modules/exact-alarm';
 import { addDays, formatLongDate, formatTime, startOfDay, weekdayName, WEEKDAYS } from '@/utils/date';
 
 type Repeating = Exclude<RepeatType, 'none'>;
@@ -107,7 +105,6 @@ export function ReminderForm({ reminder }: { reminder?: Reminder }) {
   const [endType, setEndType] = useState<EndType>(reminder?.endType ?? 'never');
   const [endDate, setEndDate] = useState(reminder?.endDate ? parseDateKey(reminder.endDate) : null);
   const [maxText, setMaxText] = useState(String(reminder?.maxOccurrences ?? 10));
-  const [exactTiming, setExactTiming] = useState(reminder?.exactTiming ?? false);
   const [snoozeChoice, setSnoozeChoice] = useState<SnoozeChoice>(() => {
     const minutes = reminder?.snoozeMinutes ?? 60;
     return minutes === 10 || minutes === 30 || minutes === 60 ? minutes : 'custom';
@@ -129,7 +126,8 @@ export function ReminderForm({ reminder }: { reminder?: Reminder }) {
     endType: repeats ? endType : 'never',
     endDate: endDate ? toDateKey(endDate) : null,
     maxOccurrences: toCount(maxText),
-    exactTiming,
+    // Always exact; the app asks for "المنبهات والتذكيرات" at launch instead of per reminder.
+    exactTiming: true,
     snoozeMinutes: snoozeChoice === 'custom' ? (toCount(snoozeText) ?? 0) : snoozeChoice,
   };
 
@@ -310,24 +308,6 @@ export function ReminderForm({ reminder }: { reminder?: Reminder }) {
                 )}
               </Field>
             </>
-          )}
-        </Section>
-
-        <Section>
-          <SwitchRow
-            label="التنبيه في الوقت المحدد بدقة"
-            description="قد يحتاج هذا الخيار إلى صلاحية إضافية على بعض أجهزة Android."
-            value={exactTiming}
-            onChange={setExactTiming}
-          />
-          {exactTiming && Platform.OS === 'android' && !canScheduleExactAlarms() && (
-            <Button
-              label="منح صلاحية التنبيه الدقيق"
-              icon="alarm_on"
-              variant="tonal"
-              compact
-              onPress={openExactAlarmSettings}
-            />
           )}
         </Section>
 
