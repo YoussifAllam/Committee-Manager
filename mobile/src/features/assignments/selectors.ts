@@ -25,9 +25,9 @@ export function completedAssignments(assignments: Assignment[]) {
   return assignments.filter(isDone).sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
 }
 
-/** What the home screen flags: open assignments that are overdue or not normal priority. */
+/** What the home screen flags: open assignments that are overdue, blocked, or not normal priority. */
 export function needingAttention(assignments: Assignment[]) {
   return openAssignments(assignments).filter(
-    (assignment) => isOverdue(assignment) || assignment.priority !== 'normal',
+    (assignment) => isOverdue(assignment) || assignment.status === 'blocked' || assignment.priority !== 'normal',
   );
 }

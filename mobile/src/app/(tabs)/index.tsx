@@ -7,6 +7,7 @@ import { ScreenTitle } from '@/components/page-header';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { AssignmentCard } from '@/features/assignments/assignment-card';
+import { useAssignments } from '@/features/assignments/assignments-store';
 import { AssignmentsSummary } from '@/features/assignments/assignments-summary';
 import { needingAttention, summarize } from '@/features/assignments/selectors';
 import { useSelectedCommittee } from '@/features/committees/selected-committee';
@@ -14,12 +15,13 @@ import { MeetingSummaryCard } from '@/features/meetings/meeting-summary-card';
 import { NextMeetingCard } from '@/features/meetings/next-meeting-card';
 import { upcomingMeetings } from '@/features/meetings/schedule';
 import { useTheme } from '@/hooks/use-theme';
-import { assignments, currentUser, meetings } from '@/mocks/data';
+import { currentUser, meetings } from '@/mocks/data';
 import { greeting } from '@/utils/date';
 
 export default function HomeScreen() {
   const theme = useTheme();
   const { committees, committee: selectedCommittee } = useSelectedCommittee();
+  const { assignments } = useAssignments();
   const upcoming = upcomingMeetings(meetings);
   const nextOverall = upcoming[0];
   const nextInSelected = upcoming.find((meeting) => meeting.committee.id === selectedCommittee.id);

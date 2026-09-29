@@ -109,8 +109,12 @@ export const meetings: Meeting[] = [
 
 const hoursAgo = (hours: number) => new Date(Date.now() - hours * 3_600_000);
 
+const chair = 'أحمد محمد';
+
+type AssignmentSeed = Omit<Assignment, 'history' | 'comments'> & Partial<Pick<Assignment, 'history' | 'comments'>>;
+
 // Assignments across all of the member's committees; screens filter by the selected committee.
-export const assignments: Assignment[] = [
+const assignmentSeeds: AssignmentSeed[] = [
   {
     id: '1',
     committee: adminCommittee,
@@ -121,6 +125,31 @@ export const assignments: Assignment[] = [
     dueDate: daysFromNow(-14),
     updatedAt: hoursAgo(2),
     meetingTitle: 'الاجتماع الإداري الأسبوعي',
+    history: [
+      { id: '1-1', at: hoursAgo(24 * 21), text: 'تم إسناد التكليف وتحديد الموعد النهائي', by: chair },
+      {
+        id: '1-2',
+        at: hoursAgo(24 * 20),
+        text: 'بدء العمل على التكليف وإرسال الخطاب المبدئي للإدارة',
+        by: currentUser.name,
+      },
+    ],
+    comments: [
+      {
+        id: '1-c1',
+        at: hoursAgo(24 * 20 - 1),
+        author: chair,
+        role: 'مدير الاجتماع',
+        text: 'يرجى التأكد من الحصول على موافقة خطية قبل يوم الأربعاء القادم.',
+      },
+      {
+        id: '1-c2',
+        at: hoursAgo(24 * 19),
+        author: currentUser.name,
+        role: 'عضو',
+        text: 'تم تسليم الخطاب وبانتظار رد مدير المسجد غدًا إن شاء الله.',
+      },
+    ],
   },
   {
     id: '2',
@@ -201,3 +230,16 @@ export const assignments: Assignment[] = [
   },
 ];
 
+// Every assignment starts with its assignment in the timeline.
+export const assignments: Assignment[] = assignmentSeeds.map(({ history, comments, ...assignment }) => ({
+  ...assignment,
+  history: history ?? [
+    {
+      id: `${assignment.id}-1`,
+      at: new Date(assignment.updatedAt.getTime() - 24 * 3_600_000),
+      text: 'تم إسناد التكليف وتحديد الموعد النهائي',
+      by: chair,
+    },
+  ],
+  comments: comments ?? [],
+}));

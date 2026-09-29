@@ -6,10 +6,10 @@ import { SegmentedControl } from '@/components/segmented-control';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { AssignmentCard } from '@/features/assignments/assignment-card';
+import { useAssignments } from '@/features/assignments/assignments-store';
 import { completedAssignments, openAssignments } from '@/features/assignments/selectors';
 import { useSelectedCommittee } from '@/features/committees/selected-committee';
 import { useTheme } from '@/hooks/use-theme';
-import { assignments } from '@/mocks/data';
 
 type Status = 'open' | 'completed';
 
@@ -17,6 +17,7 @@ type Status = 'open' | 'completed';
 export default function AssignmentsScreen() {
   const theme = useTheme();
   const { committee } = useSelectedCommittee();
+  const { assignments } = useAssignments();
   const [status, setStatus] = useState<Status>('open');
   const inCommittee = assignments.filter((assignment) => assignment.committee.id === committee.id);
   const open = openAssignments(inCommittee);

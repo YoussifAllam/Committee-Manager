@@ -4,7 +4,8 @@ import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/button';
 import { Card } from '@/components/card';
-import { Icon, type IconName } from '@/components/icon';
+import { Icon } from '@/components/icon';
+import { InfoRow } from '@/components/info-row';
 import { Screen } from '@/components/screen';
 import { ThemedText } from '@/components/themed-text';
 import { Radius, Spacing } from '@/constants/theme';
@@ -113,24 +114,6 @@ export default function ReminderDetailsScreen() {
   );
 }
 
-function InfoRow({ icon, label, value, last }: { icon: IconName; label: string; value: string; last?: boolean }) {
-  const theme = useTheme();
-
-  return (
-    <View style={[styles.row, !last && { borderBottomColor: theme.border, borderBottomWidth: StyleSheet.hairlineWidth }]}>
-      <View style={[styles.rowIcon, { backgroundColor: theme.primarySoft }]}>
-        <Icon name={icon} size={18} color={theme.primary} />
-      </View>
-      <View style={styles.grow}>
-        <ThemedText type="caption" themeColor="textSecondary">
-          {label}
-        </ThemedText>
-        <ThemedText type="label">{value}</ThemedText>
-      </View>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   content: {
     padding: Spacing.three,
@@ -155,19 +138,6 @@ const styles = StyleSheet.create({
   rows: {
     gap: 0,
     paddingVertical: Spacing.one,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.three - Spacing.one,
-    paddingVertical: Spacing.three - Spacing.one,
-  },
-  rowIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: Radius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   buttons: {
     gap: Spacing.two,
