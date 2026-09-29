@@ -1,7 +1,7 @@
 import * as Notifications from 'expo-notifications';
 import * as TaskManager from 'expo-task-manager';
 
-import { responseToEvent } from '@/features/reminders/scheduler';
+import { responseToEvent } from '@/features/reminders/os-scheduler';
 import { handleNotificationEvent } from '@/features/reminders/service';
 
 /**

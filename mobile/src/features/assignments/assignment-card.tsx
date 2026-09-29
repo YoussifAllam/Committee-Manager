@@ -9,7 +9,7 @@ import { Fonts, Radius, Spacing, type ThemeColor } from '@/constants/theme';
 import { isDone, isOverdue } from '@/features/assignments/selectors';
 import type { Assignment, AssignmentPriority, AssignmentStatus } from '@/features/assignments/types';
 import { useTheme } from '@/hooks/use-theme';
-import { daysFromToday, formatDays, formatShortDate, formatTimeAgo } from '@/utils/date';
+import { formatShortDate } from '@/utils/date';
 
 // Status is a small colored dot and plain text; the only strong color on the card is red overdue text.
 const STATUS: Record<AssignmentStatus, { label: string; dot: ThemeColor }> = {
@@ -58,28 +58,11 @@ export function AssignmentCard({ assignment }: { assignment: Assignment }) {
           </ThemedText>
         </View>
 
-        <View style={styles.meta}>
+        <View style={styles.footer}>
           <View style={styles.row}>
             <Icon name="event" size={16} color={dueColor} />
             <ThemedText type="small" style={{ color: dueColor }}>
-              {overdue
-                ? `متأخر ${formatDays(-daysFromToday(dueDate))} · ${formatShortDate(dueDate)}`
-                : `الموعد النهائي ${formatShortDate(dueDate)}`}
-            </ThemedText>
-          </View>
-          <View style={styles.row}>
-            <Icon name="update" size={16} />
-            <ThemedText type="caption" themeColor="textSecondary">
-              آخر تحديث {formatTimeAgo(assignment.updatedAt)}
-            </ThemedText>
-          </View>
-        </View>
-
-        <View style={[styles.footer, { borderTopColor: theme.border }]}>
-          <View style={[styles.row, styles.shrink]}>
-            <Icon name="groups" size={16} />
-            <ThemedText type="caption" themeColor="textSecondary" numberOfLines={1} style={styles.shrink}>
-              {assignment.meetingTitle}
+              {overdue ? `متأخر · ${formatShortDate(dueDate)}` : `الموعد النهائي ${formatShortDate(dueDate)}`}
             </ThemedText>
           </View>
           {!isDone(assignment) && <Button label="تحديث سريع" icon="edit" variant="tonal" compact />}
@@ -107,23 +90,15 @@ const styles = StyleSheet.create({
   body: {
     gap: Spacing.one,
   },
-  meta: {
-    gap: Spacing.half,
-  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.one + Spacing.half,
-  },
-  shrink: {
-    flexShrink: 1,
   },
   footer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: Spacing.three - Spacing.one,
-    paddingTop: Spacing.three - Spacing.one,
-    borderTopWidth: StyleSheet.hairlineWidth,
   },
 });

@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useState, type ReactNode } from 'react';
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, FlatList, Platform, Pressable, StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/button';
 import { Icon, type IconName } from '@/components/icon';
@@ -75,7 +75,11 @@ export default function RemindersScreen() {
             <Notice
               icon="info"
               tone="info"
-              text="معاينة الويب: التذكيرات تُحفظ في هذا المتصفح، أما التنبيهات المجدولة فتعمل في تطبيق الهاتف فقط."
+              text={
+                Platform.OS === 'web'
+                  ? 'معاينة الويب: التذكيرات تُحفظ في هذا المتصفح، أما التنبيهات المجدولة فتعمل في تطبيق الهاتف فقط.'
+                  : 'Expo Go: التذكيرات تُحفظ، أما التنبيهات فتعمل في نسخة التطبيق المثبّتة (APK) فقط.'
+              }
             />
           )}
           {hasActive && <PermissionBanner />}

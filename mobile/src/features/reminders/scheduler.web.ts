@@ -1,14 +1,16 @@
 import type { PlannedNotification } from '@/features/reminders/recurrence';
-import type { Permission, ReminderNotificationEvent } from '@/features/reminders/scheduler';
+import type { Permission, ReminderNotificationEvent } from '@/features/reminders/os-scheduler';
 import type { Reminder } from '@/features/reminders/types';
 
 /**
  * Web preview only. A browser can't schedule an alert that fires after the tab is closed, so this
  * scheduler reports itself unsupported and schedules nothing; the screens say so in development.
- * The API matches scheduler.ts so the native module can be swapped in unchanged.
+ * The API matches os-scheduler.ts; Expo Go on Android uses this file too (see scheduler.ts).
  */
 
-export type { Permission, PermissionStatus, ReminderNotificationEvent } from '@/features/reminders/scheduler';
+export type { Permission, PermissionStatus, ReminderNotificationEvent } from '@/features/reminders/os-scheduler';
+
+export const expoGoWithoutNotifications = false;
 
 const unsupported: Permission = { status: 'unsupported', canAskAgain: false };
 
