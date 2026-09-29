@@ -5,13 +5,22 @@ import { ThemedText } from '@/components/themed-text';
 import { Fonts, Radius, Spacing, type Tone } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
-export function Chip({ label, icon, tone = 'neutral' }: { label: string; icon: IconName; tone?: Tone }) {
+type ChipProps = {
+  label: string;
+  icon: IconName;
+  tone?: Tone;
+  /** Thin border in the tone's color, for statuses. */
+  outlined?: boolean;
+};
+
+export function Chip({ label, icon, tone = 'neutral', outlined = false }: ChipProps) {
   const theme = useTheme();
   const [color, backgroundColor] =
     tone === 'neutral' ? [theme.textSecondary, theme.surfaceMuted] : [theme[tone], theme[`${tone}Soft` as const]];
 
   return (
-    <View style={[styles.chip, { backgroundColor }]}>
+    // `${color}55`: the tone color at about a third opacity.
+    <View style={[styles.chip, { backgroundColor }, outlined && { borderWidth: 1, borderColor: `${color}55` }]}>
       <Icon name={icon} size={14} color={color} />
       <ThemedText type="caption" style={[styles.label, { color }]}>
         {label}
