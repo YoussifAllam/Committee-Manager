@@ -40,12 +40,13 @@ export function daysFromToday(date: Date) {
 export const formatDays = (count: number) =>
   pluralize(count, { one: 'يوم واحد', two: 'يومين', few: 'أيام', many: 'يومًا' });
 
-/** "10 دقائق"، "30 دقيقة"، "ساعة"، "ساعتين"; whole hours read as hours. */
+/** "10 دقائق"، "ساعة"، "ساعتين"، "ساعة و30 دقيقة". */
 export function formatMinutes(minutes: number) {
-  if (minutes >= 60 && minutes % 60 === 0) {
-    return pluralize(minutes / 60, { one: 'ساعة', two: 'ساعتين', few: 'ساعات', many: 'ساعة' });
-  }
-  return pluralize(minutes, { one: 'دقيقة', two: 'دقيقتين', few: 'دقائق', many: 'دقيقة' });
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  const hoursText = hours ? pluralize(hours, { one: 'ساعة', two: 'ساعتين', few: 'ساعات', many: 'ساعة' }) : '';
+  const restText = rest ? pluralize(rest, { one: 'دقيقة', two: 'دقيقتين', few: 'دقائق', many: 'دقيقة' }) : '';
+  return hoursText && restText ? `${hoursText} و${restText}` : hoursText || restText;
 }
 
 /** Relative day: اليوم، غدًا، أمس، بعد 3 أيام، منذ 5 أيام. */

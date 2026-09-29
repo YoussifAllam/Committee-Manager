@@ -55,10 +55,27 @@ const SNOOZE_OPTIONS: { value: SnoozeChoice; label: string }[] = [
   { value: 'custom', label: 'وقت مخصص' },
 ];
 
-/** Whole positive numbers only; Arabic-Indic digits typed on an Arabic keyboard count too. */
+// Arabic-Indic digits typed on an Arabic keyboard count too.
+const toLatin = (text: string) => text.trim().replace(/[٠-٩]/g, (digit) => String(digit.charCodeAt(0) - 0x0660));
+
+/** Whole positive numbers only. */
 function toCount(text: string) {
-  const latin = text.trim().replace(/[٠-٩]/g, (digit) => String(digit.charCodeAt(0) - 0x0660));
+  const latin = toLatin(text);
   return /^\d+$/.test(latin) && Number(latin) > 0 ? Number(latin) : null;
+}
+
+/** Whole numbers from 0, for optional fields: empty counts as 0. */
+function toWhole(text: string) {
+  const latin = toLatin(text);
+  if (latin === '') return 0;
+  return /^\d+$/.test(latin) ? Number(latin) : null;
+}
+
+/** Custom snooze in minutes: hours are optional (empty = 0); 0 when either field isn't a whole number. */
+function customSnooze(hoursText: string, minutesText: string) {
+  const hours = toWhole(hoursText);
+  const minutes = toWhole(minutesText);
+  return hours === null || minutes === null ? 0 : hours * 60 + minutes;
 }
 
 /** A new reminder starts tomorrow at 09:00 صباحًا. */
@@ -109,7 +126,9 @@ export function ReminderForm({ reminder }: { reminder?: Reminder }) {
     const minutes = reminder?.snoozeMinutes ?? 60;
     return minutes === 10 || minutes === 30 || minutes === 60 ? minutes : 'custom';
   });
-  const [snoozeText, setSnoozeText] = useState(String(reminder?.snoozeMinutes ?? 15));
+  const initialSnooze = reminder?.snoozeMinutes ?? 15;
+  const [snoozeHoursText, setSnoozeHoursText] = useState(String(Math.floor(initialSnooze / 60)));
+  const [snoozeText, setSnoozeText] = useState(String(initialSnooze % 60));
   // Errors show after the first save attempt, not while the member is still typing.
   const [submitted, setSubmitted] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -128,7 +147,7 @@ export function ReminderForm({ reminder }: { reminder?: Reminder }) {
     maxOccurrences: toCount(maxText),
     // Always exact; the app asks for "المنبهات والتذكيرات" at launch instead of per reminder.
     exactTiming: true,
-    snoozeMinutes: snoozeChoice === 'custom' ? (toCount(snoozeText) ?? 0) : snoozeChoice,
+    snoozeMinutes: snoozeChoice === 'custom' ? customSnooze(snoozeHoursText, snoozeText) : snoozeChoice,
   };
 
   const now = new Date();
@@ -147,7 +166,7 @@ export function ReminderForm({ reminder }: { reminder?: Reminder }) {
           : '',
     maxOccurrences:
       repeats && endType === 'after_occurrences' && !draft.maxOccurrences ? 'اكتب عدد مرات أكبر من صفر.' : '',
-    snooze: draft.snoozeMinutes > 0 ? '' : 'اكتب عدد دقائق أكبر من صفر.',
+    snooze: draft.snoozeMinutes > 0 ? '' : 'اكتب مدة أكبر من صفر.',
   };
   const ruleIncomplete = Boolean(errors.weekdays || errors.interval || errors.endDate || errors.maxOccurrences);
   const hasFuture = !ruleIncomplete && !!nextOccurrence(draft, now);
@@ -335,7 +354,10 @@ export function ReminderForm({ reminder }: { reminder?: Reminder }) {
               ))}
             </View>
             {snoozeChoice === 'custom' && (
-              <NumberInput value={snoozeText} onChange={setSnoozeText} suffix="دقيقة" label="عدد الدقائق" />
+              <View style={styles.chips}>
+                <NumberInput value={snoozeHoursText} onChange={setSnoozeHoursText} suffix="ساعة" label="عدد الساعات" />
+                <NumberInput value={snoozeText} onChange={setSnoozeText} suffix="دقيقة" label="عدد الدقائق" />
+              </View>
             )}
           </Field>
         </Section>
