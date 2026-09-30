@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
   },
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(17, 32, 29, 0.4)',
+    backgroundColor: 'rgba(15, 27, 42, 0.4)',
   },
   sheet: {
     gap: Spacing.three - Spacing.one,

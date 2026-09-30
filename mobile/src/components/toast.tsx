@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     padding: Spacing.three - Spacing.one,
     borderRadius: Radius.lg,
     borderWidth: 1,
-    boxShadow: '0 6px 20px rgba(8, 48, 44, 0.16)',
+    boxShadow: '0 6px 20px rgba(10, 40, 70, 0.16)',
   },
   icon: {
     width: 32,

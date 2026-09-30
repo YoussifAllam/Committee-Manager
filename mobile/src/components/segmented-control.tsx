@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
     borderRadius: Radius.md,
   },
   selected: {
-    boxShadow: '0 1px 3px rgba(8, 48, 44, 0.1)',
+    boxShadow: '0 1px 3px rgba(10, 40, 70, 0.1)',
   },
   count: {
     minWidth: 22,

@@ -1,20 +1,20 @@
 /**
- * Design tokens. The app is light-only: teal (the app icon's green) is the brand color, and semantic tones are reserved
+ * Design tokens. The app is light-only: sky blue (the app icon's color) is the brand color, and semantic tones are reserved
  * for things that need attention.
  */
 
 export const Colors = {
-  text: '#11201D',
-  textSecondary: '#55645F',
-  background: '#F3F7F6',
+  text: '#0F1B2A',
+  textSecondary: '#546474',
+  background: '#F3F7FA',
   surface: '#FFFFFF',
-  surfaceMuted: '#EDF4F2',
-  border: '#DDE8E4',
-  primary: '#0E7C73',
-  primarySoft: '#E8F5F2',
+  surfaceMuted: '#EEF4F8',
+  border: '#DEE7EE',
+  primary: '#0272AF',
+  primarySoft: '#E6F4FC',
   onPrimary: '#FFFFFF',
-  headerGradient: ['#D6EEE8', '#F3F7F6'],
-  brandGradient: ['#128A80', '#0B4F4A'],
+  headerGradient: ['#D6EEFB', '#F3F7FA'],
+  brandGradient: ['#0EA5E9', '#0369A1'],
   info: '#2A5BD7',
   infoSoft: '#E8EFFD',
   violet: '#6D3FC0',

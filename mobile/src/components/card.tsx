@@ -21,6 +21,6 @@ const styles = StyleSheet.create({
     padding: Spacing.three,
     gap: Spacing.three,
     overflow: 'hidden',
-    boxShadow: '0 1px 3px rgba(8, 48, 44, 0.06)',
+    boxShadow: '0 1px 3px rgba(10, 40, 70, 0.06)',
   },
 });
